@@ -247,4 +247,5 @@ This power is licensed under [MIT](LICENSE).
 
 - [Issues](https://github.com/andersonlugojacome/kiro-powers-mcp-kit/issues)
 - [Discussions](https://github.com/andersonlugojacome/kiro-powers-mcp-kit/discussions)
+- [Privacy Policy](https://digitalesweb.com/privacy-policy/)
 - Email: andersonlugojacome@gmail.com
