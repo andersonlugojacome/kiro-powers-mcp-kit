@@ -11,97 +11,92 @@
 - **Sin variables de entorno necesarias**
 
 ### context7
-- **command:** `npx` ejecuta el package sin instalarlo globalmente
+- **command:** `npx` ejecuta el package sin instalarlo
 - **args:** `["-y", "@upstash/context7-mcp"]`
 - **Prerequisito:** Node.js 18+
 - **Sin variables de entorno necesarias**
 
-### atlassian
-- **url:** Endpoint remoto del MCP server de Atlassian
-- **headers.Authorization:** `Basic ${ATLASSIAN_AUTH_TOKEN}`
-- **`${ATLASSIAN_AUTH_TOKEN}`** se reemplaza con la variable de entorno del sistema
+### jira
+- **command:** `npx`
+- **args:** `["-y", "@aashari/mcp-server-atlassian-jira"]`
+- **Package:** https://github.com/aashari/mcp-server-atlassian-jira
+- **Prerequisito:** Node.js 18+ y API token de Atlassian
 
-## Como configurar ATLASSIAN_AUTH_TOKEN
+**Variables de entorno requeridas:**
 
-### Paso 1: Generar el token base64
+| Variable | Descripcion | Ejemplo |
+|---|---|---|
+| `ATLASSIAN_SITE_NAME` | Nombre del site (parte antes de .atlassian.net) | `jirasegurosbolivar` |
+| `ATLASSIAN_USER_EMAIL` | Tu email de Atlassian | `tu.email@segurosbolivar.com` |
+| `ATLASSIAN_API_TOKEN` | API token personal | `abc123...` |
 
-```bash
-echo -n "tu.email@segurosbolivar.com:TU_API_TOKEN_AQUI" | base64
-```
+## Como configurar (Windows 11 sin admin)
 
-Esto produce algo como: `dHUuZW1haWxAc2VndXJvc2JvbGl2YXIuY29tOmFiYzEyMw==`
+### Paso 1: Crear API Token
 
-### Paso 2: Exportar la variable
+1. Ir a: https://id.atlassian.com/manage-profile/security/api-tokens
+2. Click "Create API token"
+3. Nombre: "Kiro MCP"
+4. Copiar el token generado
 
-**macOS/Linux** — Agregar a `~/.zshrc` o `~/.bashrc`:
+### Paso 2: Configurar variables de entorno
 
-```bash
-export ATLASSIAN_AUTH_TOKEN="dHUuZW1haWxAc2VndXJvc2JvbGl2YXIuY29tOmFiYzEyMw=="
-```
-
-Luego recargar:
-```bash
-source ~/.zshrc
-```
-
-**Windows 11 (sin permisos de administrador)** — En PowerShell:
+En PowerShell:
 
 ```powershell
-# Setear variable a nivel usuario (NO requiere admin)
-[System.Environment]::SetEnvironmentVariable("ATLASSIAN_AUTH_TOKEN", "dHUuZW1haWxAc2VndXJvc2JvbGl2YXIuY29tOmFiYzEyMw==", "User")
+# Setear variables a nivel usuario (NO requiere admin)
+[System.Environment]::SetEnvironmentVariable("ATLASSIAN_SITE_NAME", "jirasegurosbolivar", "User")
+[System.Environment]::SetEnvironmentVariable("ATLASSIAN_USER_EMAIL", "tu.email@segurosbolivar.com", "User")
+[System.Environment]::SetEnvironmentVariable("ATLASSIAN_API_TOKEN", "tu-api-token-copiado", "User")
 ```
 
 O desde la UI (sin admin):
 1. Buscar "Variables de entorno" en el menu inicio
-2. Click en "Editar las variables de entorno de esta cuenta" (NO las del sistema)
-3. Nueva → Nombre: `ATLASSIAN_AUTH_TOKEN` → Valor: el base64
+2. Click "Editar las variables de entorno de esta cuenta"
+3. Nueva → agregar las 3 variables
 4. Aceptar
-
-**Generar el base64 en PowerShell (sin admin):**
-
-```powershell
-$bytes = [System.Text.Encoding]::UTF8.GetBytes("tu.email@segurosbolivar.com:TU_API_TOKEN")
-[System.Convert]::ToBase64String($bytes)
-```
-
-**Verificar en PowerShell:**
-
-```powershell
-# Verificar que existe
-$env:ATLASSIAN_AUTH_TOKEN
-
-# Decodificar para confirmar
-[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:ATLASSIAN_AUTH_TOKEN))
-```
-
-> **IMPORTANTE:** Despues de setear la variable, cerrar y abrir una terminal nueva (o reiniciar Kiro) para que tome el valor.
 
 ### Paso 3: Reiniciar Kiro
 
-Kiro lee las variables de entorno al iniciar. Despues de exportar, reiniciar Kiro para que tome el valor.
+Cerrar y abrir Kiro para que tome las variables nuevas.
 
-## Verificar
+### Paso 4: Verificar
+
+En Kiro escribir: "Lista mis proyectos de Jira"
+
+Si funciona, vas a ver tus proyectos. Si da 401, verificar:
+- El site name es correcto (sin https://, sin .atlassian.net)
+- El email coincide con tu cuenta de Atlassian
+- El API token no expiró
+
+## Como configurar (macOS/Linux)
+
+Agregar a `~/.zshrc` o `~/.bashrc`:
 
 ```bash
-# Verificar que la variable existe
-echo $ATLASSIAN_AUTH_TOKEN
-
-# Verificar que decodifica bien
-echo $ATLASSIAN_AUTH_TOKEN | base64 --decode
-# Debe mostrar: tu.email@segurosbolivar.com:tu-api-token
+export ATLASSIAN_SITE_NAME="jirasegurosbolivar"
+export ATLASSIAN_USER_EMAIL="tu.email@segurosbolivar.com"
+export ATLASSIAN_API_TOKEN="tu-api-token"
 ```
 
-## Si prefieres OAuth (sin variables)
-
-Cambia el mcp.json a:
-
-```json
-{
-  "atlassian": {
-    "command": "npx",
-    "args": ["-y", "mcp-remote", "https://mcp.atlassian.com/v1/mcp/authv2"]
-  }
-}
+Luego:
+```bash
+source ~/.zshrc
 ```
 
-Con OAuth, la primera conexion abre un browser para autorizar. No necesitas variables de entorno.
+## Verificar credenciales (sin Kiro)
+
+```bash
+npx -y @aashari/mcp-server-atlassian-jira get --path "/rest/api/3/myself"
+```
+
+Si muestra tu usuario, las credenciales estan bien.
+
+## Troubleshooting
+
+| Error | Causa | Solucion |
+|---|---|---|
+| 401 Unauthorized | Token invalido o expirado | Crear nuevo token en Atlassian |
+| 403 Forbidden | Sin permisos en ese proyecto | Verificar acceso en Jira web |
+| ATLASSIAN_SITE_NAME not set | Variable no exportada | Cerrar y abrir terminal, verificar con `echo $ATLASSIAN_SITE_NAME` |
+| npx timeout | Sin internet o npm bloqueado | Verificar red/proxy |
