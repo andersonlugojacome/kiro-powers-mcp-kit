@@ -230,3 +230,21 @@ Este Power incluye skills SDD en `.kiro/skills/` para uso con Engram GO:
 | `skill-creator` | Crea nuevas skills |
 | `mcp-status-assistant` | Muestra estado MCP |
 | `kiro-update-assistant` | Guia actualizaciones |
+
+## License and support
+
+This power is licensed under [MIT](LICENSE).
+
+### MCP Servers used
+
+| Server | License | Privacy | Support |
+|---|---|---|---|
+| **Engram GO** | [MIT](https://github.com/Gentleman-Programming/engram/blob/main/LICENSE) | [GitHub](https://github.com/Gentleman-Programming/engram) | [Issues](https://github.com/Gentleman-Programming/engram/issues) |
+| **Context7** (@upstash/context7-mcp) | [MIT](https://github.com/upstash/context7/blob/main/LICENSE) | [Upstash Privacy](https://upstash.com/trust/privacy.pdf) | [Issues](https://github.com/upstash/context7/issues) |
+| **Jira** (@aashari/mcp-server-atlassian-jira) | [ISC](https://github.com/aashari/mcp-server-atlassian-jira/blob/main/LICENSE) | [Atlassian Privacy](https://www.atlassian.com/legal/privacy-policy) | [Issues](https://github.com/aashari/mcp-server-atlassian-jira/issues) |
+
+### Power support
+
+- [Issues](https://github.com/andersonlugojacome/kiro-powers-mcp-kit/issues)
+- [Discussions](https://github.com/andersonlugojacome/kiro-powers-mcp-kit/discussions)
+- Email: andersonlugojacome@gmail.com
