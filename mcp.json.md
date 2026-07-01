@@ -44,13 +44,37 @@ Luego recargar:
 source ~/.zshrc
 ```
 
-**Windows** — En PowerShell (permanente):
+**Windows 11 (sin permisos de administrador)** — En PowerShell:
 
 ```powershell
+# Setear variable a nivel usuario (NO requiere admin)
 [System.Environment]::SetEnvironmentVariable("ATLASSIAN_AUTH_TOKEN", "dHUuZW1haWxAc2VndXJvc2JvbGl2YXIuY29tOmFiYzEyMw==", "User")
 ```
 
-O via System Properties > Environment Variables.
+O desde la UI (sin admin):
+1. Buscar "Variables de entorno" en el menu inicio
+2. Click en "Editar las variables de entorno de esta cuenta" (NO las del sistema)
+3. Nueva → Nombre: `ATLASSIAN_AUTH_TOKEN` → Valor: el base64
+4. Aceptar
+
+**Generar el base64 en PowerShell (sin admin):**
+
+```powershell
+$bytes = [System.Text.Encoding]::UTF8.GetBytes("tu.email@segurosbolivar.com:TU_API_TOKEN")
+[System.Convert]::ToBase64String($bytes)
+```
+
+**Verificar en PowerShell:**
+
+```powershell
+# Verificar que existe
+$env:ATLASSIAN_AUTH_TOKEN
+
+# Decodificar para confirmar
+[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:ATLASSIAN_AUTH_TOKEN))
+```
+
+> **IMPORTANTE:** Despues de setear la variable, cerrar y abrir una terminal nueva (o reiniciar Kiro) para que tome el valor.
 
 ### Paso 3: Reiniciar Kiro
 
