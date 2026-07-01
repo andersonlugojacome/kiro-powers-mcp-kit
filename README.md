@@ -10,30 +10,30 @@ Un **Kiro Power** que transforma tu agente en un companero de equipo contextuali
 |---|---|
 | **Engram GO** | Memoria persistente (20 tools, SQLite + FTS5) |
 | **Context7** | Documentacion actualizada de cualquier libreria |
-| **Atlassian** | Jira + Confluence (read, write, search) |
+| **Atlassian** | Jira + Confluence (read, write, search) — opcional |
 
-Plus: **SDD Workflow** completo (Spec-Driven Development) con 9 skills de desarrollo + 3 operativas.
+Plus: **SDD Workflow** completo (Spec-Driven Development) con 9 fases + 3 skills operativas.
 
-## Quick Start (< 5 minutos)
+## Instalacion (< 5 minutos)
 
 ### 1. Prerequisitos
 
 ```bash
-# Engram GO (memoria)
+# Engram GO (memoria persistente)
 brew install gentleman-programming/tap/engram
 
 # Node.js v18+ (Context7 + Atlassian proxy)
 node --version  # debe ser >= 18
 ```
 
-### 2. Instalar el Power
+### 2. Instalar el Power en Kiro
 
-En Kiro:
-```
-Import Power From Github
-Repo: andersonlugojacome/kiro-powers-mcp-kit
-Branch: main
-```
+1. Abrir Kiro → Panel de Powers → **Add Custom Power**
+2. Seleccionar **Import power from GitHub**
+3. Ingresar URL: `https://github.com/andersonlugojacome/kiro-powers-mcp-kit`
+4. Click **Install**
+
+Kiro registra automaticamente los MCP servers y carga los steering files.
 
 ### 3. Verificar
 
@@ -52,8 +52,8 @@ Branch: main
 { "command": "engram", "args": ["mcp"] }
 ```
 
-Instalacion: `brew install gentleman-programming/tap/engram`
-Docs: [setup-engram.md](docs/setup-engram.md)
+20 MCP tools: `mem_save`, `mem_search`, `mem_get_observation`, `mem_context`, sessions, conflicts, y mas.
+Docs: [docs/setup-engram.md](docs/setup-engram.md)
 
 ### Context7 (documentacion viva)
 
@@ -62,42 +62,18 @@ Docs: [setup-engram.md](docs/setup-engram.md)
 ```
 
 Sin instalacion adicional. Requiere Node.js 18+.
-Docs: [setup-context7.md](docs/setup-context7.md)
+Docs: [docs/setup-context7.md](docs/setup-context7.md)
 
-### Atlassian (Jira + Confluence)
+### Atlassian (Jira + Confluence) — opcional
 
 ```json
 { "command": "npx", "args": ["-y", "mcp-remote", "https://mcp.atlassian.com/v1/mcp"] }
 ```
 
-Requiere Atlassian Cloud + OAuth/API token. **Opcional.**
-Docs: [setup-atlassian.md](docs/setup-atlassian.md)
+Requiere Atlassian Cloud + OAuth/API token.
+Docs: [docs/setup-atlassian.md](docs/setup-atlassian.md)
 
-## Skills incluidas
-
-### SDD Workflow (Spec-Driven Development)
-
-| Skill | Funcion |
-|---|---|
-| `sdd-init` | Inicializa contexto del proyecto |
-| `sdd-explore` | Explora ideas y alternativas |
-| `sdd-propose` | Crea propuesta de cambio |
-| `sdd-spec` | Escribe especificaciones |
-| `sdd-design` | Define diseno tecnico |
-| `sdd-tasks` | Descompone en tareas |
-| `sdd-apply` | Implementa tareas |
-| `sdd-verify` | Verifica implementacion |
-| `sdd-archive` | Archiva cambio completado |
-
-### Operativas
-
-| Skill | Trigger |
-|---|---|
-| `skill-creator` | Crear nuevas skills |
-| `mcp-status-assistant` | "estatus" o "status mcp" |
-| `kiro-update-assistant` | "actualizame" o "update" |
-
-## SDD Commands
+## SDD Workflow
 
 ```
 /sdd-init          — Inicializar proyecto
@@ -108,6 +84,28 @@ Docs: [setup-atlassian.md](docs/setup-atlassian.md)
 /sdd-verify        — Verificar
 /sdd-archive       — Archivar
 ```
+
+## Estructura del repo
+
+```
+├── POWER.md                # Metadata + onboarding + docs (Kiro lo lee)
+├── mcp.json                # MCP servers (Kiro lo registra)
+├── steering/               # Workflows (Kiro los carga on-demand)
+│   ├── mcp-workflow.md
+│   └── sdd-workflow.md
+├── .kiro/
+│   ├── skills/             # Skills SDD (referencia para Engram)
+│   └── steering/           # Steering detallado
+├── docs/                   # Guias por server
+├── scripts/                # Verificacion cross-platform
+└── .github/workflows/      # CI
+```
+
+## Actualizar
+
+En Kiro: Panel de Powers → seleccionar power → **Check for updates** → **Install updates**
+
+O escribir en el chat: **"actualizame"**
 
 ## Powers Status
 
@@ -121,29 +119,6 @@ Docs: [setup-atlassian.md](docs/setup-atlassian.md)
 | P6-P12 Team features | 🔲 Pendiente |
 
 [Roadmap completo](docs/powers-roadmap.md)
-
-## Actualizar
-
-En Kiro:
-```
-Import Power From Github
-Repo: andersonlugojacome/kiro-powers-mcp-kit
-Branch: main
-```
-
-O escribir en el chat: **"actualizame"**
-
-## Estructura del proyecto
-
-```
-.kiro/
-├── settings/mcp.json        # 3 MCP servers
-├── steering/                # AGENTS + workflows
-└── skills/                  # 12 skills + _shared
-docs/                        # Guias por server
-scripts/                     # Verificacion cross-platform
-.github/workflows/           # CI
-```
 
 ## Licencia
 

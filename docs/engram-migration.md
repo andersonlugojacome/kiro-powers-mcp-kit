@@ -434,4 +434,30 @@ Si un agente necesita continuar trabajo en este proyecto, debe saber:
 
 ---
 
-*Documento generado: 2026-07-01 | Sesion completa | 28/28 tasks*
+### 3.7 Adaptacion a formato oficial Kiro Power
+
+El repo fue adaptado al formato oficial de Kiro Powers:
+
+**Estructura oficial:**
+```
+POWER.md          # OBLIGATORIO — metadata + onboarding + steering docs
+mcp.json          # MCP servers (Kiro lo registra automaticamente)
+steering/         # Workflows cargados on-demand por Kiro
+.kiro/skills/     # Skills SDD (referencia, no importadas por Power system)
+```
+
+**Cambios aplicados:**
+1. Creado `POWER.md` con frontmatter (name, displayName, description, keywords, author)
+2. Movido `mcp.json` a root (eliminado `.kiro/settings/mcp.json`)
+3. Creado `steering/` en root con mcp-workflow.md y sdd-workflow.md
+4. `.kiro/skills/` se mantiene como referencia (Kiro no auto-importa skills)
+5. `.kiro/steering/` se mantiene como docs detallados adicionales
+
+**Flujo de instalacion:**
+1. Kiro → Powers panel → Add Custom Power → Import from GitHub
+2. URL: https://github.com/andersonlugojacome/kiro-powers-mcp-kit
+3. Kiro lee POWER.md, registra mcp.json, carga steering/ on-demand
+
+---
+
+*Documento generado: 2026-07-01 | Sesion completa | Formato Power oficial*
