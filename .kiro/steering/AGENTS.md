@@ -108,6 +108,8 @@ Each phase returns: `status`, `executive_summary`, `artifacts`, `next_recommende
 
 ## Actualizacion del Power
 
-- Metodo oficial: Import Power From Github (`andersonlugojacome/kiro-powers-mcp-kit`)
-- En la primera interaccion del dia, informar si hay actualizacion disponible.
+- Mecanismo nativo: Powers panel > Check for updates > Install updates
+- Notificacion proactiva (P10): en la primera interaccion del dia, consultar GitHub releases API para detectar nueva version.
+- Flujo: GET `https://api.github.com/repos/andersonlugojacome/kiro-powers-mcp-kit/releases/latest` > comparar tag > si nuevo, informar al usuario > guardar en Engram para no repetir ese dia.
+- Canales: `main` = stable (default), `canary` = pre-release.
 - No repetir alerta mas de una vez por dia.

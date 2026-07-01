@@ -58,6 +58,43 @@ onUserQuery(query):
 | Context7 timeout | Verificar internet, continuar con Engram |
 | Kiro no detecta cambios | Verificar mcp.json + reiniciar Kiro |
 
+## Notificacion Proactiva de Updates (P10)
+
+En la primera interaccion del dia con este Power activo:
+
+1. Consultar GitHub API:
+   ```
+   GET https://api.github.com/repos/andersonlugojacome/kiro-powers-mcp-kit/releases/latest
+   ```
+2. Obtener `tag_name` del ultimo release.
+3. Buscar en Engram si ya se notifico hoy:
+   ```
+   mem_search(query: "power-update-check", project: "kiro-powers-mcp-kit")
+   ```
+4. Si no se notifico hoy Y hay version nueva:
+   - Informar al usuario: "Hay update de kiro-powers-mcp-kit (vX.Y.Z). Powers panel > Check for updates."
+   - Guardar en Engram:
+   ```
+   mem_save(
+     title: "power-update-check",
+     topic_key: "power-update-check/last-notify",
+     type: "decision",
+     project: "kiro-powers-mcp-kit",
+     content: "date: {hoy ISO}\nversion: {tag}\nnotified: true"
+   )
+   ```
+5. Si ya se notifico hoy: no repetir.
+6. Si no hay release nuevo: silencio.
+
+### Canales
+
+| Branch | Canal | Descripcion |
+|---|---|---|
+| `main` | stable | Default, probado |
+| `canary` | canary | Pre-release, early adopters |
+
+Para instalar canary: Import from GitHub con branch `canary`.
+
 ## Degradacion Graceful
 
 - Si Engram no disponible: continuar sin memoria, WARN al usuario.

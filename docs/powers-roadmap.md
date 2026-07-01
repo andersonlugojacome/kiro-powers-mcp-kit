@@ -13,7 +13,7 @@
 | P7 | Team governance | 🔲 Pendiente | Politicas por equipo |
 | P8 | Perfiles por tipo de proyecto | 🔲 Pendiente | Templates frontend/backend/data/mobile |
 | P9 | Memoria con trazabilidad | 🔲 Pendiente | Origen visible en reutilizacion |
-| P10 | Canales de actualizacion | 🔲 Pendiente | stable/canary channels |
+| P10 | Canales de actualizacion | ✅ Implementado | GitHub releases API + branch canary |
 | P11 | Diagnostico corporativo | 🔲 Pendiente | Proxy/certs/npm check previo |
 | P12 | Reporte para soporte | 🔲 Pendiente | Salida estandar para mesa de ayuda |
 
@@ -46,8 +46,16 @@
 ### P5 — Actualizacion guiada
 
 - `kiro-update-assistant` skill
-- Metodo: Import Power From Github
+- Metodo: Powers panel > Check for updates
 - Verificacion post-update con setup script
+
+### P10 — Canales de actualizacion
+
+- Notificacion proactiva: en primera interaccion del dia, consulta GitHub releases API
+- Compara `tag_name` del ultimo release vs version guardada en Engram
+- Si hay update: informa al usuario con accion directa
+- No repite alerta mas de una vez por dia (persiste en Engram)
+- Canales: `main` = stable, `canary` = pre-release (branch al importar)
 
 ## Powers futuros (P6-P12)
 

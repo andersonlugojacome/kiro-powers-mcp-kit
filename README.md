@@ -129,7 +129,8 @@ O escribir en el chat: **"actualizame"**
 | P3 Documentacion viva | ✅ |
 | P4 Health check | ✅ |
 | P5 Actualizacion guiada | ✅ |
-| P6-P12 Team features | 🔲 Pendiente |
+| P10 Canales de actualizacion | ✅ |
+| P6-P9, P11-P12 Team features | 🔲 Pendiente |
 
 [Roadmap completo](docs/powers-roadmap.md)
 
