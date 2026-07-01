@@ -110,6 +110,27 @@ Docs: [docs/setup-atlassian.md](docs/setup-atlassian.md)
 /sdd-archive       — Archivar
 ```
 
+## Skills instaladas
+
+Estas son las skills incluidas y su funcion principal:
+
+| Skill | Para que sirve | Cuando usarla |
+|---|---|---|
+| `sdd-init` | Inicializa el contexto SDD del proyecto (stack, convenciones y persistencia) | Al arrancar un proyecto nuevo o cuando cambia la base tecnica |
+| `sdd-explore` | Explora ideas y alternativas antes de definir un cambio | Cuando hay que investigar enfoque, alcance o riesgos |
+| `sdd-propose` | Crea la propuesta de cambio (proposal) con objetivo y alcance | Cuando ya hay claridad inicial y hay que formalizar el cambio |
+| `sdd-spec` | Escribe especificaciones con requisitos y escenarios | Cuando hay que definir comportamiento esperado de forma verificable |
+| `sdd-design` | Define diseno tecnico y decisiones de arquitectura | Cuando se necesita describir como implementar el cambio |
+| `sdd-tasks` | Descompone el cambio en tareas concretas por fases | Antes de implementar, para ejecutar con orden y trazabilidad |
+| `sdd-apply` | Implementa tareas del cambio siguiendo specs y diseno | Durante la ejecucion tecnica del cambio |
+| `sdd-verify` | Verifica que la implementacion cumpla specs y tareas | Al cerrar implementacion o en checkpoints de calidad |
+| `sdd-archive` | Consolida y archiva un cambio SDD completado | Al finalizar ciclo completo (proposal → verify) |
+| `skill-creator` | Crea nuevas skills siguiendo el formato oficial | Cuando el equipo necesita automatizar un patron nuevo |
+| `mcp-status-assistant` | Muestra estado MCP (config, runtime, Engram, Context7, Atlassian) | Cuando pidas "estatus" o "estado mcp" |
+| `kiro-update-assistant` | Guia actualizaciones del Power | Cuando pidas "actualizame" o "update" |
+
+> **Nota:** La carpeta `_shared/` contiene documentos de apoyo (convenciones, contratos) y no es una skill ejecutable.
+
 ## Estructura del repo
 
 ```
