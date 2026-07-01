@@ -35,7 +35,15 @@ node --version  # debe ser >= 18
 
 Kiro registra automaticamente los MCP servers y carga los steering files.
 
-### 3. Verificar
+### 3. Configurar Atlassian (opcional)
+
+```bash
+cp .env.sample .env
+# Editar con tu email y API token de Atlassian
+# URL por defecto: https://jirasegurosbolivar.atlassian.net
+```
+
+### 4. Verificar
 
 ```bash
 # macOS/Linux
@@ -67,10 +75,15 @@ Docs: [docs/setup-context7.md](docs/setup-context7.md)
 ### Atlassian (Jira + Confluence) — opcional
 
 ```json
-{ "command": "npx", "args": ["-y", "mcp-remote", "https://mcp.atlassian.com/v1/mcp"] }
+{ "url": "https://mcp.atlassian.com/v1/mcp", "headers": { "Authorization": "Basic ${ATLASSIAN_AUTH_TOKEN}" } }
 ```
 
-Requiere Atlassian Cloud + OAuth/API token.
+Requiere Atlassian Cloud + API token. Setup:
+```bash
+cp .env.sample .env
+# Editar .env con tu email y token
+echo -n "tu.email@segurosbolivar.com:tu-api-token" | base64
+```
 Docs: [docs/setup-atlassian.md](docs/setup-atlassian.md)
 
 ## SDD Workflow
