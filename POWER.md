@@ -46,28 +46,44 @@ node --version  # debe ser >= 18
 npx --version
 ```
 
-### Step 3: Atlassian (Jira + Confluence)
+### Step 3: Configurar Jira (variables de entorno)
 
-Si tu equipo usa Atlassian Cloud (Jira/Confluence):
+#### Windows 11
 
-1. Copiar `.env.sample` a `.env`:
-   ```bash
-   cp .env.sample .env
-   ```
-2. Editar `.env` con tu email y API token de Atlassian:
-   ```
-   ATLASSIAN_EMAIL=tu.email@segurosbolivar.com
-   ATLASSIAN_TOKEN=tu-api-token-de-atlassian
-   ATLASSIAN_URL=https://jirasegurosbolivar.atlassian.net
-   JIRA_PROJECT_KEY=TUPROJ
-   ```
-3. Generar el base64 para auth:
-   ```bash
-   echo -n "tu.email@segurosbolivar.com:tu-api-token" | base64
-   ```
-4. Poner el resultado en la variable `ATLASSIAN_AUTH_TOKEN`
+1. Crear API Token en: https://id.atlassian.com/manage-profile/security/api-tokens
+2. En PowerShell, setear variables a nivel usuario:
 
-Si no tenes Atlassian, el kit funciona perfecto sin este server.
+```powershell
+[System.Environment]::SetEnvironmentVariable("ATLASSIAN_SITE_NAME", "jirasegurosbolivar", "User")
+[System.Environment]::SetEnvironmentVariable("ATLASSIAN_USER_EMAIL", "tu.email@segurosbolivar.com", "User")
+[System.Environment]::SetEnvironmentVariable("ATLASSIAN_API_TOKEN", "tu-api-token", "User")
+```
+
+O desde la UI:
+1. Buscar "Variables de entorno" en el menu inicio
+2. Click "Editar las variables de entorno de esta cuenta"
+3. Agregar las 3 variables: `ATLASSIAN_SITE_NAME`, `ATLASSIAN_USER_EMAIL`, `ATLASSIAN_API_TOKEN`
+4. Aceptar y reiniciar Kiro
+
+#### macOS/Linux
+
+```bash
+# Agregar a ~/.zshrc o ~/.bashrc:
+export ATLASSIAN_SITE_NAME="jirasegurosbolivar"
+export ATLASSIAN_USER_EMAIL="tu.email@segurosbolivar.com"
+export ATLASSIAN_API_TOKEN="tu-api-token"
+
+# Recargar
+source ~/.zshrc
+```
+
+#### Verificar
+
+```bash
+npx -y @aashari/mcp-server-atlassian-jira get --path "/rest/api/3/myself"
+```
+
+Si muestra tu usuario, las credenciales estan bien. Reiniciar Kiro.
 
 ### Step 4: Verify installation
 
@@ -100,12 +116,17 @@ Documentacion actualizada de librerias/frameworks.
 
 **Tools:** `resolve-library-id`, `query-docs`
 
-### atlassian
-Jira + Confluence via server remoto oficial de Atlassian.
+### jira
+Jira Cloud via MCP local. Package: `@aashari/mcp-server-atlassian-jira`
 
-**Tools:** read/write/search para Jira y Confluence. Auth: OAuth 2.1 o API token.
+**Tools:** `jira_get`, `jira_post`, `jira_put`, `jira_patch`, `jira_delete` — acceso completo a la REST API de Jira.
 
-**Nota:** Este server es opcional. El kit funciona sin Atlassian.
+**Variables requeridas:**
+| Variable | Valor |
+|---|---|
+| `ATLASSIAN_SITE_NAME` | `jirasegurosbolivar` (parte antes de .atlassian.net) |
+| `ATLASSIAN_USER_EMAIL` | Tu email de Atlassian |
+| `ATLASSIAN_API_TOKEN` | Token de https://id.atlassian.com/manage-profile/security/api-tokens |
 
 ## SDD Workflow (Spec-Driven Development)
 
