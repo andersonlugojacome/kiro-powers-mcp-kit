@@ -46,12 +46,28 @@ node --version  # debe ser >= 18
 npx --version
 ```
 
-### Step 3: Atlassian (opcional)
+### Step 3: Atlassian (Jira + Confluence)
 
 Si tu equipo usa Atlassian Cloud (Jira/Confluence):
-1. Tu admin debe habilitar Rovo MCP Server en la organizacion
-2. La primera conexion pedira OAuth via browser
-3. Si no tenes Atlassian, el kit funciona perfecto sin este server
+
+1. Copiar `.env.sample` a `.env`:
+   ```bash
+   cp .env.sample .env
+   ```
+2. Editar `.env` con tu email y API token de Atlassian:
+   ```
+   ATLASSIAN_EMAIL=tu.email@segurosbolivar.com
+   ATLASSIAN_TOKEN=tu-api-token-de-atlassian
+   ATLASSIAN_URL=https://jirasegurosbolivar.atlassian.net
+   JIRA_PROJECT_KEY=TUPROJ
+   ```
+3. Generar el base64 para auth:
+   ```bash
+   echo -n "tu.email@segurosbolivar.com:tu-api-token" | base64
+   ```
+4. Poner el resultado en la variable `ATLASSIAN_AUTH_TOKEN`
+
+Si no tenes Atlassian, el kit funciona perfecto sin este server.
 
 ### Step 4: Verify installation
 

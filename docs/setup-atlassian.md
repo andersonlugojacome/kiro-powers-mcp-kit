@@ -14,37 +14,48 @@ Server MCP remoto oficial de Atlassian. Conecta Jira y Confluence con Kiro via O
 {
   "mcpServers": {
     "atlassian": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.atlassian.com/v1/mcp"]
+      "url": "https://mcp.atlassian.com/v1/mcp",
+      "headers": {
+        "Authorization": "Basic ${ATLASSIAN_AUTH_TOKEN}"
+      }
     }
   }
 }
 ```
 
-## Autenticacion
+## Setup con API Token (nuestro equipo)
 
-### Opcion A: OAuth 2.1 (recomendado para uso personal)
+### Paso 1: Crear API Token personal
 
-1. Al conectar por primera vez, se abre un browser para autorizar
-2. Aceptar permisos de Jira/Confluence
-3. El token se gestiona automaticamente
+1. Ir a: https://id.atlassian.com/manage-profile/security/api-tokens
+2. Crear un nuevo token con todos los scopes
+3. Copiar el token generado
 
-### Opcion B: API Token (headless, para CI/automacion)
+### Paso 2: Generar el base64
 
-1. Admin habilita API token en: Atlassian Administration > Rovo > MCP server > Authentication
-2. Crear token personal con scopes necesarios
-3. Configurar en el endpoint:
-
-```json
-{
-  "mcpServers": {
-    "atlassian": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.atlassian.com/v1/mcp"]
-    }
-  }
-}
+```bash
+# Formato: email:api_token
+echo -n "tu.email@segurosbolivar.com:TU_API_TOKEN" | base64
 ```
+
+### Paso 3: Configurar .env
+
+Copiar `.env.sample` a `.env` y completar:
+
+```bash
+cp .env.sample .env
+# Editar .env con tus valores:
+ATLASSIAN_EMAIL=tu.email@segurosbolivar.com
+ATLASSIAN_TOKEN=tu-api-token
+ATLASSIAN_URL=https://jirasegurosbolivar.atlassian.net
+JIRA_PROJECT_KEY=TUPROJ
+```
+
+El valor de `ATLASSIAN_AUTH_TOKEN` es el base64 de `email:token`.
+
+### Opcion alternativa: OAuth 2.1
+
+Si prefieres no usar API token, la primera conexion abre un browser para autorizar via OAuth. No necesitas .env en ese caso.
 
 ## Products soportados
 

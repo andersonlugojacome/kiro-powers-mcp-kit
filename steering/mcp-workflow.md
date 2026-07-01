@@ -37,8 +37,8 @@ onUserQuery(query):
 
 ### Tips para tokens
 ```
-- MUST use cloudId = "https://tu-site.atlassian.net"
-- MUST use Jira project key = TUPROJ
+- MUST use cloudId = "https://jirasegurosbolivar.atlassian.net"
+- MUST use Jira project key = (ver .env JIRA_PROJECT_KEY)
 - MUST use maxResults: 10 for searches
 ```
 

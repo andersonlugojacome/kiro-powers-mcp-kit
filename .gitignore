@@ -10,8 +10,9 @@ Thumbs.db
 
 # Environment
 .env
-.env.*
 .env.local
+.env.*.local
+!.env.sample
 
 # Logs
 *.log
