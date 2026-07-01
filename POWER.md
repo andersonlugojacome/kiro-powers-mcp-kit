@@ -10,6 +10,8 @@ author: "Anderson Lugo"
 
 # Kiro Powers MCP Kit
 
+> **Version instalada: 1.4.0** — Escribi "estatus" para verificar estado MCP.
+
 ## Overview
 
 Este Power transforma tu agente Kiro en un companero de equipo contextualizado con:
