@@ -1,5 +1,30 @@
+# Dependencies
 node_modules/
+
+# Engram local data
+.engram/
+
+# OS files
 .DS_Store
-*.log
+Thumbs.db
+
+# Environment
 .env
 .env.*
+.env.local
+
+# Logs
+*.log
+
+# Temporary
+*.tmp
+*.bak
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Atlassian local state
+.atl/

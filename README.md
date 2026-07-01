@@ -1,27 +1,150 @@
 # Kiro Powers MCP Kit
 
-> Kiro Powers: contexto inteligente, memoria persistente, health checks, y más — para cualquier equipo con Kiro.
+> Contexto inteligente, memoria persistente, documentacion viva y Jira+Confluence — todo integrado en Kiro.
 
-## ¿Qué es esto?
+## Que es esto
 
-Kiro Powers transforma tu agente Kiro de un asistente genérico a un **compañero de equipo contextualizado** que entiende tu stack, recuerda decisiones anteriores, verifica su propio entorno y se actualiza inteligentemente.
+Un **Kiro Power** que transforma tu agente en un companero de equipo contextualizado con:
 
-Este kit implementa los **KIRO Powers** originalmente definidos en [mcp-kiro-kit-fix](https://github.com/andersonlugojacome/mcp-kiro-kit-fix), pero como un proyecto independiente con arquitectura limpia y extensible.
+| MCP Server | Funcion |
+|---|---|
+| **Engram GO** | Memoria persistente (20 tools, SQLite + FTS5) |
+| **Context7** | Documentacion actualizada de cualquier libreria |
+| **Atlassian** | Jira + Confluence (read, write, search) |
 
-## Powers
+Plus: **SDD Workflow** completo (Spec-Driven Development) con 9 skills de desarrollo + 3 operativas.
+
+## Quick Start (< 5 minutos)
+
+### 1. Prerequisitos
+
+```bash
+# Engram GO (memoria)
+brew install gentleman-programming/tap/engram
+
+# Node.js v18+ (Context7 + Atlassian proxy)
+node --version  # debe ser >= 18
+```
+
+### 2. Instalar el Power
+
+En Kiro:
+```
+Import Power From Github
+Repo: andersonlugojacome/kiro-powers-mcp-kit
+Branch: main
+```
+
+### 3. Verificar
+
+```bash
+# macOS/Linux
+./scripts/setup.sh
+
+# O en Kiro, escribir: "estatus"
+```
+
+## MCP Servers
+
+### Engram GO (memoria persistente)
+
+```json
+{ "command": "engram", "args": ["mcp"] }
+```
+
+Instalacion: `brew install gentleman-programming/tap/engram`
+Docs: [setup-engram.md](docs/setup-engram.md)
+
+### Context7 (documentacion viva)
+
+```json
+{ "command": "npx", "args": ["-y", "@upstash/context7-mcp"] }
+```
+
+Sin instalacion adicional. Requiere Node.js 18+.
+Docs: [setup-context7.md](docs/setup-context7.md)
+
+### Atlassian (Jira + Confluence)
+
+```json
+{ "command": "npx", "args": ["-y", "mcp-remote", "https://mcp.atlassian.com/v1/mcp"] }
+```
+
+Requiere Atlassian Cloud + OAuth/API token. **Opcional.**
+Docs: [setup-atlassian.md](docs/setup-atlassian.md)
+
+## Skills incluidas
+
+### SDD Workflow (Spec-Driven Development)
+
+| Skill | Funcion |
+|---|---|
+| `sdd-init` | Inicializa contexto del proyecto |
+| `sdd-explore` | Explora ideas y alternativas |
+| `sdd-propose` | Crea propuesta de cambio |
+| `sdd-spec` | Escribe especificaciones |
+| `sdd-design` | Define diseno tecnico |
+| `sdd-tasks` | Descompone en tareas |
+| `sdd-apply` | Implementa tareas |
+| `sdd-verify` | Verifica implementacion |
+| `sdd-archive` | Archiva cambio completado |
+
+### Operativas
+
+| Skill | Trigger |
+|---|---|
+| `skill-creator` | Crear nuevas skills |
+| `mcp-status-assistant` | "estatus" o "status mcp" |
+| `kiro-update-assistant` | "actualizame" o "update" |
+
+## SDD Commands
+
+```
+/sdd-init          — Inicializar proyecto
+/sdd-explore       — Explorar un tema
+/sdd-new <cambio>  — Explore + Propose
+/sdd-ff <cambio>   — Propose > Spec > Design > Tasks
+/sdd-apply         — Implementar
+/sdd-verify        — Verificar
+/sdd-archive       — Archivar
+```
+
+## Powers Status
 
 | Power | Estado |
-|-------|--------|
-| P1 — Contexto inteligente por proyecto | 🔲 Pendiente |
-| P2 — Reuso con memoria (Engram-first) | 🔲 Pendiente |
-| P3 — Documentación viva (Context7) | 🔲 Pendiente |
-| P4 — Health check ampliado | 🔲 Pendiente |
-| P5 — Actualización guiada | 🔲 Pendiente |
-| P6 — Perfil de equipo (Team preset) | 🔲 Pendiente |
-| P7-P12 — Team governance, canales, diagnóstico, reporte | 🔲 Pendiente |
+|---|---|
+| P1 Contexto inteligente | ✅ |
+| P2 Memoria persistente | ✅ |
+| P3 Documentacion viva | ✅ |
+| P4 Health check | ✅ |
+| P5 Actualizacion guiada | ✅ |
+| P6-P12 Team features | 🔲 Pendiente |
 
-## Stack
+[Roadmap completo](docs/powers-roadmap.md)
 
-- PowerShell (scripts de instalación y verificación)
-- Markdown (skills y steering para Kiro)
-- JSON (configuración MCP)
+## Actualizar
+
+En Kiro:
+```
+Import Power From Github
+Repo: andersonlugojacome/kiro-powers-mcp-kit
+Branch: main
+```
+
+O escribir en el chat: **"actualizame"**
+
+## Estructura del proyecto
+
+```
+.kiro/
+├── settings/mcp.json        # 3 MCP servers
+├── steering/                # AGENTS + workflows
+└── skills/                  # 12 skills + _shared
+docs/                        # Guias por server
+scripts/                     # Verificacion cross-platform
+.github/workflows/           # CI
+```
+
+## Licencia
+
+MIT

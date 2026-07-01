@@ -1,0 +1,75 @@
+name: Validate Kit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON
+        run: |
+          echo "Validating mcp.json..."
+          cat .kiro/settings/mcp.json | python3 -m json.tool > /dev/null
+          echo "✅ mcp.json is valid"
+
+      - name: Check skills count
+        run: |
+          SKILL_COUNT=$(find .kiro/skills -name "SKILL.md" | wc -l)
+          echo "Skills found: $SKILL_COUNT"
+          if [ "$SKILL_COUNT" -lt 10 ]; then
+            echo "❌ Expected at least 10 skills, found $SKILL_COUNT"
+            exit 1
+          fi
+          echo "✅ Skill count OK ($SKILL_COUNT)"
+
+      - name: Validate skill structure
+        run: |
+          echo "Checking each skill has SKILL.md with frontmatter..."
+          ERRORS=0
+          for skill_dir in .kiro/skills/*/; do
+            dir_name=$(basename "$skill_dir")
+            if [ "$dir_name" = "_shared" ]; then
+              continue
+            fi
+            if [ ! -f "$skill_dir/SKILL.md" ]; then
+              echo "❌ Missing SKILL.md in $skill_dir"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "❌ $ERRORS skill(s) missing SKILL.md"
+            exit 1
+          fi
+          echo "✅ All skills have SKILL.md"
+
+      - name: Lint shell scripts
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './scripts'
+          additional_files: 'setup.sh'
+
+      - name: Check steering files exist
+        run: |
+          for file in AGENTS.md 01-mcp-workflow.md 02-sdd-orchestrator-runtime.md; do
+            if [ ! -f ".kiro/steering/$file" ]; then
+              echo "❌ Missing steering file: $file"
+              exit 1
+            fi
+          done
+          echo "✅ All steering files present"
+
+      - name: Check docs exist
+        run: |
+          for file in setup-engram.md setup-atlassian.md setup-context7.md powers-roadmap.md; do
+            if [ ! -f "docs/$file" ]; then
+              echo "❌ Missing doc: $file"
+              exit 1
+            fi
+          done
+          echo "✅ All docs present"
