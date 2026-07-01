@@ -1,6 +1,7 @@
 ---
 name: "kiro-powers-mcp-kit"
 displayName: "Kiro Powers MCP Kit"
+version: "1.4.0"
 icon: "assets/logo.png"
 description: "Contexto inteligente, memoria persistente con Engram GO, documentacion viva con Context7, y Jira+Confluence via Atlassian MCP. Incluye workflow SDD completo (Spec-Driven Development)."
 keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation"]
