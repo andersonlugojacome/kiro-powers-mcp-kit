@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <!-- Background -->
+  <rect width="1280" height="640" fill="#0f1019"/>
+  <rect width="1280" height="640" fill="url(#grad)" opacity="0.4"/>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e1b4b;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Subtle grid -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+  </pattern>
+  <rect width="1280" height="640" fill="url(#grid)" opacity="0.5"/>
+  
+  <!-- Logo circle -->
+  <circle cx="640" cy="240" r="110" fill="#1a1b2e" stroke="#6366f1" stroke-width="3"/>
+  
+  <!-- Brain/Memory symbol -->
+  <path d="M600 220 C600 195, 625 180, 640 180 C655 180, 680 195, 680 220 C680 232, 674 238, 668 244 C662 250, 662 255, 662 260" 
+        fill="none" stroke="#a78bfa" stroke-width="5" stroke-linecap="round"/>
+  <path d="M612 220 C612 208, 625 198, 640 198 C655 198, 668 208, 668 220 C668 228, 664 233, 660 237" 
+        fill="none" stroke="#818cf8" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Lightning bolt -->
+  <path d="M632 235 L648 235 L642 253 L658 253 L628 285 L636 265 L622 265 Z" 
+        fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+  
+  <!-- Connection nodes -->
+  <circle cx="500" cy="240" r="10" fill="#34d399" stroke="#10b981" stroke-width="2"/>
+  <circle cx="780" cy="240" r="10" fill="#34d399" stroke="#10b981" stroke-width="2"/>
+  <circle cx="640" cy="370" r="10" fill="#34d399" stroke="#10b981" stroke-width="2"/>
+  
+  <!-- Connection lines -->
+  <line x1="510" y1="240" x2="530" y2="230" stroke="#6ee7b7" stroke-width="2" stroke-dasharray="6,4" opacity="0.6"/>
+  <line x1="770" y1="240" x2="750" y2="230" stroke="#6ee7b7" stroke-width="2" stroke-dasharray="6,4" opacity="0.6"/>
+  <line x1="640" y1="360" x2="640" y2="350" stroke="#6ee7b7" stroke-width="2" stroke-dasharray="6,4" opacity="0.6"/>
+  
+  <!-- Node labels -->
+  <text x="500" y="218" text-anchor="middle" font-size="12" font-family="monospace" fill="#a7f3d0">ENGRAM</text>
+  <text x="780" y="218" text-anchor="middle" font-size="12" font-family="monospace" fill="#a7f3d0">CONTEXT7</text>
+  <text x="640" y="398" text-anchor="middle" font-size="12" font-family="monospace" fill="#a7f3d0">ATLASSIAN</text>
+  
+  <!-- Title -->
+  <text x="640" y="470" text-anchor="middle" font-size="52" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" fill="#e0e7ff">Kiro Powers MCP Kit</text>
+  
+  <!-- Subtitle -->
+  <text x="640" y="515" text-anchor="middle" font-size="22" font-family="system-ui, -apple-system, sans-serif" fill="#94a3b8">Memoria persistente · Documentacion viva · Jira + Confluence</text>
+  
+  <!-- Badges row -->
+  <text x="640" y="570" text-anchor="middle" font-size="16" font-family="monospace" fill="#6366f1">Engram GO  ·  Context7  ·  Atlassian  ·  SDD Workflow</text>
+  
+  <!-- Version tag -->
+  <rect x="560" y="590" width="160" height="28" rx="14" fill="#1e1b4b" stroke="#6366f1" stroke-width="1"/>
+  <text x="640" y="609" text-anchor="middle" font-size="14" font-family="monospace" fill="#a78bfa">v1.1.0 · MIT</text>
+</svg>
