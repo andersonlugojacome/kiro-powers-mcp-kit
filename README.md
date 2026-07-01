@@ -1,6 +1,18 @@
-# Kiro Powers MCP Kit
+<p align="center">
+  <img src="assets/logo.svg" alt="Kiro Powers MCP Kit" width="160"/>
+</p>
 
-> Contexto inteligente, memoria persistente, documentacion viva y Jira+Confluence — todo integrado en Kiro.
+<h1 align="center">Kiro Powers MCP Kit</h1>
+
+<p align="center">
+  Contexto inteligente, memoria persistente, documentacion viva y Jira+Confluence — todo integrado en Kiro.
+</p>
+
+<p align="center">
+  <a href="https://github.com/andersonlugojacome/kiro-powers-mcp-kit/releases/latest"><img src="https://img.shields.io/github/v/release/andersonlugojacome/kiro-powers-mcp-kit?style=flat-square&color=6366f1" alt="Release"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License"/></a>
+  <img src="https://img.shields.io/badge/powers-P1--P5%20%2B%20P10-34d399?style=flat-square" alt="Powers"/>
+</p>
 
 ## Que es esto
 
