@@ -15,7 +15,7 @@ jobs:
       - name: Validate JSON
         run: |
           echo "Validating mcp.json..."
-          cat .kiro/settings/mcp.json | python3 -m json.tool > /dev/null
+          python3 -m json.tool < mcp.json > /dev/null
           echo "✅ mcp.json is valid"
 
       - name: Check skills count
