@@ -3,7 +3,7 @@ name: "kiro-powers-mcp-kit"
 displayName: "Kiro Powers MCP Kit"
 version: "1.4.0"
 icon: "assets/logo.png"
-description: "Contexto inteligente, memoria persistente con Engram GO, documentacion viva con Context7, y Jira+Confluence via Atlassian MCP. Incluye workflow SDD completo (Spec-Driven Development)."
+description: "Framework de desarrollo Spec-Driven para Kiro. Proceso estructurado (SDD, 9 fases), memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira). Cambia COMO desarrollas, no solo que herramientas usas."
 keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation"]
 author: "Anderson Lugo"
 ---
@@ -14,13 +14,14 @@ author: "Anderson Lugo"
 
 ## Overview
 
-Este Power transforma tu agente Kiro en un companero de equipo contextualizado con:
+Este Power es un **framework de desarrollo** que cambia como trabajas con Kiro:
 
-- **Engram GO** — Memoria persistente (20 MCP tools, SQLite + FTS5, Go binary)
-- **Context7** — Documentacion actualizada de cualquier libreria via semantic search
-- **Atlassian** — Jira + Confluence (read, write, search) via MCP remoto oficial
+- **SDD Workflow** — Proceso estructurado de 9 fases: cada cambio pasa por spec → design → tasks antes de escribir codigo. Gating obligatorio, TDD estricto, review workload guard.
+- **Engram GO** — Memoria persistente (20 MCP tools, SQLite + FTS5). Persiste artefactos, decisiones y progreso entre sesiones automaticamente.
+- **Context7** — Documentacion actualizada de cualquier libreria via semantic search. Auto-refresh cada 4 queries.
+- **Jira** — Integracion con gestion de equipo (read, write, search) — opcional.
 
-Plus: **SDD Workflow** completo (Spec-Driven Development) con 9 fases + 3 skills operativas.
+> No es un bundle de herramientas MCP. Es un proceso que impone calidad, con infraestructura de soporte.
 
 ## Onboarding
 
