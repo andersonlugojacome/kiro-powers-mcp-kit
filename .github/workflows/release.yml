@@ -1,19 +1,21 @@
 name: Release
 
 on:
-  pull_request:
+  push:
     branches: [main]
-    types: [closed]
+    paths:
+      - 'POWER.md'
 
 jobs:
   release:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Extract version from POWER.md
         id: version
@@ -39,12 +41,10 @@ jobs:
         id: changelog
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          # Extract section between this version header and the next version header
           NOTES=$(awk "/^## \[$VERSION\]/{found=1; next} /^## \[/{if(found) exit} found{print}" CHANGELOG.md)
           if [ -z "$NOTES" ]; then
             NOTES="Release v$VERSION"
           fi
-          # Write to file to preserve multiline
           echo "$NOTES" > release_notes.md
           echo "Release notes:"
           cat release_notes.md
