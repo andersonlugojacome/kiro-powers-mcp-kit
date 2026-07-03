@@ -99,6 +99,34 @@ Si muestra tu usuario, las credenciales estan bien. Reiniciar Kiro.
 # O en Kiro, escribi: "estatus"
 ```
 
+### Step 5 (opcional): Habilitar para kiro-cli
+
+Kiro IDE carga los MCP servers del Power automaticamente. Pero **kiro-cli** solo lee `~/.kiro/settings/mcp.json` — no lee Powers.
+
+Si tambien usas kiro-cli, ejecuta el script de merge:
+
+```powershell
+# Windows (PowerShell)
+./scripts/setup-cli.ps1
+```
+
+```bash
+# macOS/Linux (requiere jq)
+./scripts/setup-cli.sh
+```
+
+El script **solo agrega** los servers faltantes sin borrar ni modificar nada existente en tu `mcp.json`. Es idempotente (podés ejecutarlo multiples veces sin riesgo).
+
+El script tambien instala el agent **kiro_sdd_bolivar** en `~/.kiro/agents/` — un agent alternativo con personalidad costeña colombiana especializado en el workflow SDD. Para usarlo:
+
+```
+/agent swap kiro_sdd_bolivar
+```
+
+O con keyboard shortcut: `Ctrl+Shift+S`
+
+Luego reiniciar kiro-cli para que tome los cambios.
+
 ## Available Steering Files
 
 - **sdd-workflow** — Workflow SDD completo: orquestacion, concurrencia, gating por fase
