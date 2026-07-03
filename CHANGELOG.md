@@ -7,6 +7,8 @@ y este proyecto adhiere a [Versionamiento Semántico](https://semver.org/lang/es
 
 ## [No publicado]
 
+## [1.6.0] - 2026-07-03
+
 ### Agregado
 - Se creó `CHANGELOG.md` con historial completo desde v1.0.0
 - Se creó workflow de auto-release (`.github/workflows/release.yml`) — crea GitHub Release al mergear PR a main
