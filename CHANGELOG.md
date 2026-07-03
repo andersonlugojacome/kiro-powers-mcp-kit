@@ -7,6 +7,16 @@ y este proyecto adhiere a [Versionamiento Semántico](https://semver.org/lang/es
 
 ## [No publicado]
 
+## [1.6.1] - 2026-07-03
+
+### Corregido
+- Se corrigió trigger del workflow de release (`push` + `paths` en vez de `pull_request: closed`)
+- Se corrigió ícono del Power usando URL absoluta de GitHub (Kiro IDE no copia `assets/` al instalar)
+- Se actualizó `ludeeus/action-shellcheck` de `@master` a `@2.0.0` (Node.js 20 deprecation)
+
+### Cambiado
+- Se agregó versión visible en la description del Power panel (`v1.6.1 — ...`)
+
 ## [1.6.0] - 2026-07-03
 
 ### Agregado

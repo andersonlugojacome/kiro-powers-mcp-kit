@@ -1,16 +1,16 @@
 ---
 name: "kiro-powers-mcp-kit"
 displayName: "Kiro Powers MCP Kit"
-version: "1.6.0"
+version: "1.6.1"
 icon: "https://raw.githubusercontent.com/andersonlugojacome/kiro-powers-mcp-kit/main/assets/logo.png"
-description: "v1.6.0 — Framework de desarrollo Spec-Driven para Kiro. Proceso estructurado (SDD, 9 fases), memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira). Cambia COMO desarrollas, no solo que herramientas usas."
+description: "v1.6.1 — Framework de desarrollo Spec-Driven para Kiro. Proceso estructurado (SDD, 9 fases), memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira). Cambia COMO desarrollas, no solo que herramientas usas."
 keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation"]
 author: "Anderson Lugo"
 ---
 
 # Kiro Powers MCP Kit
 
-> **Version instalada: 1.6.0** — Escribi "estatus" para verificar estado MCP.
+> **Version instalada: 1.6.1** — Escribi "estatus" para verificar estado MCP.
 
 ## Overview
 
@@ -278,4 +278,4 @@ This power is licensed under [MIT](LICENSE).
 - [Discussions](https://github.com/andersonlugojacome/kiro-powers-mcp-kit/discussions)
 - [Privacy Policy](https://digitalesweb.com/privacy-policy/)
 - Email: andersonlugojacome@gmail.com
-<!-- release-trigger: v1.6.0 -->
+<!-- release-trigger: v1.6.1 -->
