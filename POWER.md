@@ -278,3 +278,4 @@ This power is licensed under [MIT](LICENSE).
 - [Discussions](https://github.com/andersonlugojacome/kiro-powers-mcp-kit/discussions)
 - [Privacy Policy](https://digitalesweb.com/privacy-policy/)
 - Email: andersonlugojacome@gmail.com
+<!-- release-trigger: v1.6.0 -->
