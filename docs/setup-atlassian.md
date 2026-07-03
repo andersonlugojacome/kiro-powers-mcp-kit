@@ -1,112 +1,120 @@
-# Setup: Atlassian (Jira + Confluence)
+# Setup: Atlassian Jira
 
-Server MCP remoto oficial de Atlassian. Conecta Jira y Confluence con Kiro via OAuth 2.1 o API token.
+Server MCP para Jira Cloud via `@aashari/mcp-server-atlassian-jira`. Permite buscar, crear y actualizar issues desde Kiro.
 
 ## Prerequisitos
 
-- Atlassian Cloud site (Jira y/o Confluence)
-- Admin debe habilitar Rovo MCP Server en la organizacion
-- Node.js v18+ (para `mcp-remote` proxy)
+- Atlassian Cloud site con Jira
+- Node.js v18+
+- API token personal de Atlassian
 
 ## Configuracion MCP
+
+El server se registra automaticamente en `mcp.json`:
 
 ```json
 {
   "mcpServers": {
-    "atlassian": {
-      "url": "https://mcp.atlassian.com/v1/mcp",
-      "headers": {
-        "Authorization": "Basic ${ATLASSIAN_AUTH_TOKEN}"
+    "jira": {
+      "command": "npx",
+      "args": ["-y", "@aashari/mcp-server-atlassian-jira"],
+      "env": {
+        "ATLASSIAN_SITE_NAME": "${ATLASSIAN_SITE_NAME}",
+        "ATLASSIAN_USER_EMAIL": "${ATLASSIAN_USER_EMAIL}",
+        "ATLASSIAN_API_TOKEN": "${ATLASSIAN_API_TOKEN}"
       }
     }
   }
 }
 ```
 
-## Setup con API Token (nuestro equipo)
+## Variables de entorno
 
-### Paso 1: Crear API Token personal
+| Variable | Descripcion | Ejemplo |
+|---|---|---|
+| `ATLASSIAN_SITE_NAME` | Nombre del site (parte antes de `.atlassian.net`) | `jirasegurosbolivar` |
+| `ATLASSIAN_USER_EMAIL` | Tu email de Atlassian | `tu.email@segurosbolivar.com` |
+| `ATLASSIAN_API_TOKEN` | API token personal | `abc123...` |
+
+## Setup paso a paso
+
+### Paso 1: Crear API Token
 
 1. Ir a: https://id.atlassian.com/manage-profile/security/api-tokens
-2. Crear un nuevo token con todos los scopes
-3. Copiar el token generado
+2. Click "Create API token"
+3. Nombre: "Kiro MCP"
+4. Copiar el token generado
 
-### Paso 2: Generar el base64
+### Paso 2: Configurar variables de entorno
 
-```bash
-# Formato: email:api_token
-echo -n "tu.email@segurosbolivar.com:TU_API_TOKEN" | base64
+#### Windows (PowerShell, sin admin)
+
+```powershell
+[System.Environment]::SetEnvironmentVariable("ATLASSIAN_SITE_NAME", "jirasegurosbolivar", "User")
+[System.Environment]::SetEnvironmentVariable("ATLASSIAN_USER_EMAIL", "tu.email@segurosbolivar.com", "User")
+[System.Environment]::SetEnvironmentVariable("ATLASSIAN_API_TOKEN", "tu-api-token-copiado", "User")
 ```
 
-### Paso 3: Configurar .env
+O desde la UI:
+1. Buscar "Variables de entorno" en el menu inicio
+2. Click "Editar las variables de entorno de esta cuenta"
+3. Nueva → agregar las 3 variables
+4. Aceptar
 
-Copiar `.env.sample` a `.env` y completar:
+#### macOS / Linux
+
+Agregar a `~/.zshrc` o `~/.bashrc`:
 
 ```bash
-cp .env.sample .env
-# Editar .env con tus valores:
-ATLASSIAN_EMAIL=tu.email@segurosbolivar.com
-ATLASSIAN_TOKEN=tu-api-token
-ATLASSIAN_URL=https://jirasegurosbolivar.atlassian.net
-JIRA_PROJECT_KEY=TUPROJ
+export ATLASSIAN_SITE_NAME="jirasegurosbolivar"
+export ATLASSIAN_USER_EMAIL="tu.email@segurosbolivar.com"
+export ATLASSIAN_API_TOKEN="tu-api-token"
 ```
 
-El valor de `ATLASSIAN_AUTH_TOKEN` es el base64 de `email:token`.
+Luego:
+```bash
+source ~/.zshrc
+```
 
-### Opcion alternativa: OAuth 2.1
+### Paso 3: Reiniciar Kiro
 
-Si prefieres no usar API token, la primera conexion abre un browser para autorizar via OAuth. No necesitas .env en ese caso.
+Cerrar y abrir Kiro para que tome las variables nuevas.
 
-## Products soportados
+### Paso 4: Verificar
 
-| Producto | Permisos | Auth disponible |
-|---|---|---|
-| Jira | read, write, search | OAuth + API token |
-| Confluence | read, write, search | OAuth + API token |
-| Jira Service Management | read, write | Solo API token |
-| Bitbucket Cloud | read, write | Solo API token |
-| Compass | read, write | Solo OAuth |
+En Kiro escribir: "Lista mis proyectos de Jira"
 
 ## Tips para reducir tokens
 
-Agregar en tu AGENTS.md del proyecto:
+Agregar en el `AGENTS.md` de tu proyecto:
 
 ```markdown
-## Atlassian Rovo MCP
-- MUST use cloudId = "https://tu-site.atlassian.net"
+## Atlassian Jira MCP
 - MUST use Jira project key = TUPROJ
-- MUST use Confluence spaceId = "123456"
 - MUST use maxResults: 10 for ALL searches
 ```
 
 ## Workflows comunes
 
 ```
-# Jira
 "Buscar bugs abiertos en proyecto ALPHA"
 "Crear issue: Redesign onboarding"
 "Actualizar estado de ALPHA-123 a Done"
-
-# Confluence
-"Buscar pagina de arquitectura en espacio TEAM"
-"Crear pagina con specs del cambio"
-"Resumir la pagina de Q3 planning"
 ```
 
 ## Troubleshooting
 
-| Problema | Solucion |
-|---|---|
-| "unauthorized" | Renovar token o repetir OAuth flow |
-| "site admin must authorize" | Admin debe completar 3LO consent primero |
-| Timeout en mcp-remote | Verificar internet y proxy/VPN |
-| No aparece en Connected apps | Verificar cuenta/site correctos |
+| Error | Causa | Solucion |
+|---|---|---|
+| 401 Unauthorized | Token invalido o expirado | Crear nuevo token en Atlassian |
+| 403 Forbidden | Sin permisos en ese proyecto | Verificar acceso en Jira web |
+| `ATLASSIAN_SITE_NAME` not set | Variable no exportada | Cerrar/abrir terminal, verificar con `echo $ATLASSIAN_SITE_NAME` |
+| npx timeout | Sin internet o npm bloqueado | Verificar red/proxy |
 
 ## Mas info
 
-- [Atlassian MCP Server (GitHub)](https://github.com/atlassian/atlassian-mcp-server)
-- [Getting Started](https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/)
-- [Supported Tools](https://support.atlassian.com/atlassian-rovo-mcp-server/docs/supported-tools/)
+- [Package npm](https://www.npmjs.com/package/@aashari/mcp-server-atlassian-jira)
+- [GitHub](https://github.com/aashari/mcp-server-atlassian-jira)
 
 ## Nota importante
 

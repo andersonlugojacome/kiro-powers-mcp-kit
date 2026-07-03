@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from POWER.md
+        id: version
+        run: |
+          VERSION=$(grep -m1 '^version:' POWER.md | sed 's/version: *"\(.*\)"/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Detected version: $VERSION"
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag v${{ steps.version.outputs.version }} already exists, skipping release"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Tag v${{ steps.version.outputs.version }} does not exist, will create release"
+          fi
+
+      - name: Extract changelog for this version
+        if: steps.check_tag.outputs.exists == 'false'
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # Extract section between this version header and the next version header
+          NOTES=$(awk "/^## \[$VERSION\]/{found=1; next} /^## \[/{if(found) exit} found{print}" CHANGELOG.md)
+          if [ -z "$NOTES" ]; then
+            NOTES="Release v$VERSION"
+          fi
+          # Write to file to preserve multiline
+          echo "$NOTES" > release_notes.md
+          echo "Release notes:"
+          cat release_notes.md
+
+      - name: Create GitHub Release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          body_path: release_notes.md
+          generate_release_notes: false
