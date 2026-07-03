@@ -16,6 +16,7 @@ SETTINGS_DIR="$HOME/.kiro/settings"
 SETTINGS_FILE="$SETTINGS_DIR/mcp.json"
 
 # Servers to merge
+# shellcheck disable=SC2016
 POWER_SERVERS='{
   "power-kiro-powers-mcp-kit-engram": {
     "command": "engram",
