@@ -85,6 +85,8 @@ Para cambios donde ya tenes claridad:
 
 Ejecuta: propose → spec → design → tasks en secuencia sin pausas intermedias.
 
+> 📖 **Nuevo en SDD?** Lee la [Guía de Inicio paso a paso](docs/sdd-getting-started.md) — de cero a tu primer cambio completado.
+
 ### Ventajas concretas
 
 - **Review Workload Guard** — si un cambio supera 400 lineas, el framework propone chained PRs automaticamente
