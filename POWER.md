@@ -1,16 +1,16 @@
 ---
 name: "kiro-powers-mcp-kit"
 displayName: "Kiro Powers MCP Kit"
-version: "1.6.1"
+version: "1.7.0"
 icon: "https://raw.githubusercontent.com/andersonlugojacome/kiro-powers-mcp-kit/main/assets/logo.png"
-description: "v1.6.1 — Framework de desarrollo Spec-Driven para Kiro. Proceso estructurado (SDD, 9 fases), memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira). Cambia COMO desarrollas, no solo que herramientas usas."
-keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation"]
+description: "v1.7.0 — Framework de desarrollo Spec-Driven para Kiro. Proceso estructurado (SDD, 9 fases), memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira). Execution Loop Controller para ciclos apply⇄verify deterministas."
+keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation", "loop-controller"]
 author: "Anderson Lugo"
 ---
 
 # Kiro Powers MCP Kit
 
-> **Version instalada: 1.6.1** — Escribi "estatus" para verificar estado MCP.
+> **Version instalada: 1.7.0** — Escribi "estatus" para verificar estado MCP.
 
 ## Overview
 

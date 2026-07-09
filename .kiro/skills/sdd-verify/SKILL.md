@@ -297,6 +297,39 @@ Return to the orchestrator the same content you wrote to `verify-report.md`:
 {PASS / PASS WITH WARNINGS / FAIL}
 
 {One-line summary of overall status}
+
+---
+
+### Loop Feedback (MANDATORY when invoked per-task by ELC)
+
+When the orchestrator invokes you for a single task verification (as part of the Execution Loop Controller cycle), you MUST include this structured object in your return envelope under the key `loop_feedback`. See `.kiro/skills/_shared/loop-controller-contract.md` for the full JSON schema.
+
+```json
+{
+  "status": "PASS | FAIL",
+  "error_criticality": "NONE | LOW | HIGH | CRITICAL",
+  "suggested_action": "NONE | PATCH_FORWARD | ROLLBACK_AND_RETRY",
+  "raw_error_summary": "Max 200 chars — compressed error from compiler/linter/test",
+  "extracted_constraints": [
+    {
+      "approach_id": "Approach_01",
+      "failure_cause": "Root cause in one sentence",
+      "constraint_directive": "Explicit negation: what the next attempt MUST NOT do"
+    }
+  ],
+  "trigger_context_refresh": false
+}
+```
+
+**Decision rules for `suggested_action`:**
+- `PATCH_FORWARD`: Syntax errors, missing imports, undeclared variables, minor test assertion failures — the code structure is sound.
+- `ROLLBACK_AND_RETRY`: Design pattern violations, wrong architectural approach, severe regressions in adjacent files — the approach itself is wrong.
+
+**Decision rules for `trigger_context_refresh`:**
+- Set `true` if error contains patterns like: `undefined function`, `no attribute`, `deprecated`, `MethodNotFound`, `SignatureMismatch`, `module has no exported member`.
+- Set `false` for all other error types.
+
+When invoked for a full batch verification (not per-task ELC), the `loop_feedback` field is optional but recommended with `status: "PASS"` or `status: "FAIL"` as a summary.
 ```
 
 ## Rules
@@ -312,4 +345,4 @@ Return to the orchestrator the same content you wrote to `verify-report.md`:
 - DO NOT fix any issues — only report them. The orchestrator decides what to do.
 - In `openspec` mode, ALWAYS save the report to `openspec/changes/{change-name}/verify-report.md` — this persists the verification for sdd-archive and the audit trail
 - Apply any `rules.verify` from `openspec/config.yaml`
-- Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, and `risks` (read `../_shared/sdd-phase-common.md` for the full envelope spec)
+- Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, `risks`, and `loop_feedback` (mandatory on per-task ELC invocations — read `../_shared/loop-controller-contract.md` and `../_shared/sdd-phase-common.md` for the full envelope spec)

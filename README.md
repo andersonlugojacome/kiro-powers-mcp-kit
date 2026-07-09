@@ -51,6 +51,7 @@ Un **framework de desarrollo** que cambia COMO trabajas con Kiro:
 | Docs desactualizadas | Context7 refresca docs automaticamente, sin intervencion manual |
 | Sin control de calidad de proceso | Gating obligatorio: no se puede implementar sin spec y design aprobados |
 | TDD opcional | Strict TDD Mode: se detectan capabilities y se fuerza test-first |
+| Loops infinitos de correccion | Execution Loop Controller: criterio de parada, rollback granular y restricciones acumuladas |
 
 ## SDD Workflow — El nucleo del framework
 
@@ -91,6 +92,39 @@ Ejecuta: propose → spec → design → tasks en secuencia sin pausas intermedi
 - **Cross-session continuity** — todo artefacto queda en Engram con `topic_key`, recuperable en cualquier sesion futura
 - **Dependency gating** — no se puede hacer apply sin tasks, no se puede hacer tasks sin spec+design. El proceso impone calidad.
 - **Delivery strategy** — soporta `ask-on-risk`, `auto-chain`, `single-pr`, `exception-ok`
+- **Execution Loop Controller** — gobierna el ciclo apply⇄verify con control determinista (ver abajo)
+
+### Execution Loop Controller (ELC)
+
+El ELC transforma el ciclo implicito `apply → falla → re-apply` en un proceso programatico y determinista:
+
+```
+  apply(task) ─→ verify(task) ─→ loop_feedback
+                                      │
+                         ┌────────────┴────────────┐
+                         │                         │
+                      [PASS]                    [FAIL]
+                         │                         │
+                    next task              iteration < max?
+                                               │
+                                    ┌──────────┴──────────┐
+                                    │                     │
+                                   SI                    NO
+                                    │                     │
+                          rollback/patch +         escalar al humano
+                          accumulate constraint    con contexto
+                                    │
+                               re-apply(task)
+```
+
+| Capacidad | Que hace |
+|-----------|----------|
+| **Criterio de parada** | Max 3 iteraciones por tarea (configurable hasta 5). Sin loops infinitos. |
+| **Rollback granular** | `PATCH_FORWARD` (fix encima del progreso) vs `ROLLBACK_AND_RETRY` (git checkout y approach diferente) |
+| **Constraint accumulation** | Cada fallo se comprime a 200 chars y se inyecta como restriccion obligatoria al re-apply |
+| **Context7 conditional** | Si el error indica API deprecada/firma incorrecta, refresca docs automaticamente antes del re-apply |
+| **Post-mortem inteligente** | Lecciones arquitectonicas se persisten en Engram (no typos ni errores mecanicos) |
+| **Aislamiento por tarea** | El fallo de Task 1.1 no afecta ni bloquea Task 1.2 |
 
 ## Infraestructura MCP (lo que soporta el framework)
 

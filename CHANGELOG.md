@@ -7,6 +7,14 @@ y este proyecto adhiere a [Versionamiento Semántico](https://semver.org/lang/es
 
 ## [No publicado]
 
+## [1.7.0] - 2026-07-09
+
+### Agregado
+- Se creó contrato del Execution Loop Controller (ELC) en `.kiro/skills/_shared/loop-controller-contract.md` — gobierna el sub-bucle `apply ⇄ verify` con criterio de parada, rollback granular, acumulación de restricciones y persistencia de lecciones en Engram
+- Se agregó sección "Execution Loop Controller" al orchestrator runtime (`02-sdd-orchestrator-runtime.md`) con flujo operativo, 6 políticas clave y protocolo de escalamiento
+- Se agregó `loop_feedback` al return envelope de `sdd-verify` (JSON estructurado con `suggested_action`, `trigger_context_refresh`, y `extracted_constraints`)
+- Se agregó Step 2b "Loop-Aware Re-execution" a `sdd-apply` para consumir restricciones acumuladas del ELC (`PATCH_FORWARD` vs `ROLLBACK_AND_RETRY`)
+
 ## [1.6.1] - 2026-07-03
 
 ### Corregido

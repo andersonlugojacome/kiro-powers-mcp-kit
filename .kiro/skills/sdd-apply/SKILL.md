@@ -84,6 +84,26 @@ Before writing ANY code:
 3. Read existing code in affected files — understand current patterns
 4. Check the project's coding conventions from `config.yaml`
 
+### Step 2b: Loop-Aware Re-execution (ELC Integration)
+
+If your prompt starts with `[LOOP_CONTROLLER_NOTICE]`, you are being re-invoked by the Execution Loop Controller after a failed verification. See `.kiro/skills/_shared/loop-controller-contract.md` for the full contract.
+
+**When you detect `[LOOP_CONTROLLER_NOTICE]`:**
+
+1. **Read the constraints table FIRST** — these are NON-NEGOTIABLE restrictions. Previous approaches failed and you MUST NOT repeat them.
+2. **Check the action mode:**
+   - `PATCH_FORWARD`: Your previous code is still in the working directory. Read it, understand what's there, and fix ON TOP of existing progress. Do NOT rewrite from scratch.
+   - `ROLLBACK_AND_RETRY`: The working directory has been rolled back to clean state. You are starting fresh with a DIFFERENT approach. The constraint table tells you what approaches are forbidden.
+3. **If updated API context is provided** (from Context7 refresh): Use this documentation as the authoritative source for API signatures, method names, and module interfaces. It overrides any assumptions from your training data.
+4. **Implement the fix** following your normal TDD/Standard workflow (Step 3+), but with the accumulated constraints as hard boundaries.
+
+**Rules for re-execution:**
+- NEVER ignore a constraint directive — they represent proven failures
+- NEVER repeat an approach listed in the constraints table
+- If PATCH_FORWARD: preserve working code, fix only what broke
+- If ROLLBACK_AND_RETRY: propose a fundamentally different architectural approach
+- If you cannot find a valid approach within the constraints, return `status: blocked` with an explanation of why all viable paths are exhausted
+
 ### Step 3: Detect Implementation Mode
 
 Before writing code, determine if the project uses TDD:
@@ -254,3 +274,4 @@ If none, say "None."}
 - If TDD mode is detected (Step 3), ALWAYS follow the RED → GREEN → REFACTOR cycle — never skip RED (writing the failing test first)
 - When running tests during TDD, run ONLY the relevant test file/suite, not the entire test suite (for speed)
 - Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, and `risks` (read `../_shared/sdd-phase-common.md` for the full envelope spec)
+- When re-invoked by the Execution Loop Controller (prompt contains `[LOOP_CONTROLLER_NOTICE]`), treat constraint directives as HARD BOUNDARIES — violating them is equivalent to violating the design spec. Read `../_shared/loop-controller-contract.md` for the full contract.

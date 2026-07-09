@@ -75,3 +75,45 @@ Escalar sesiones largas con alta calidad: hilo principal liviano, trabajo pesado
 1. Estado corto por fase: OK, WARN o BLOCKED.
 2. Evidencia minima: artefacto generado + proximo paso.
 3. Si hay opciones, proponer alternativas con tradeoffs.
+
+## Execution Loop Controller (ELC)
+
+El ELC gobierna el sub-bucle `apply ⇄ verify` de forma determinista a nivel de sub-tarea individual. Contrato completo: `.kiro/skills/_shared/loop-controller-contract.md`.
+
+### Flujo operativo
+
+```
+orchestrator recibe tasks → lanza apply(batch)
+  ├── apply ejecuta task N
+  │   └── orchestrator lanza verify(task N)
+  │       ├── loop_feedback.status == PASS → siguiente task
+  │       └── loop_feedback.status == FAIL →
+  │           ├── iteration < max_iterations?
+  │           │   ├── SI → aplicar rollback policy + accumulate constraint + re-apply
+  │           │   └── NO → escalar al humano con contexto estructurado
+  │           └── [post-mortem si resuelto después de >1 iteración]
+  └── batch completo → verify(full batch) → archive
+```
+
+### Politicas clave
+
+1. **Max iterations**: 3 por defecto, configurable hasta 5 por tarea.
+2. **Rollback policy**: Basada en `loop_feedback.suggested_action`:
+   - `PATCH_FORWARD`: Mantener archivos, fix encima del progreso existente.
+   - `ROLLBACK_AND_RETRY`: `git checkout -- {files}` antes de re-apply con approach diferente.
+3. **Constraint accumulation**: Cada fallo se comprime a max 200 chars. Se inyecta como `[LOOP_CONTROLLER_NOTICE]` al inicio del prompt de re-apply.
+4. **Context7 conditional refresh**: Si `loop_feedback.trigger_context_refresh == true`, consultar Context7 con el metodo/modulo especifico antes del re-apply.
+5. **Post-mortem to Engram**: Solo si iteraciones > 1 Y la resolucion fue arquitectonica/dependencia (no typos). Topic key: `sdd/lessons-learned/{componente}`.
+6. **Aislamiento**: El fallo de Task 1.1 NO afecta inputs pre-computados de Task 1.2.
+
+### Escalamiento al humano
+
+Cuando se agotan iteraciones sin PASS, el ELC genera:
+1. `git diff` del ultimo intento
+2. Tabla de restricciones acumuladas
+3. Ultimo `raw_error_summary` del verify
+4. Recomendacion de siguiente accion
+
+### Logging obligatorio
+
+Todo rollback fisico se loguea con prefijo `[ELC_ROLLBACK]` indicando archivos restaurados y motivo.
