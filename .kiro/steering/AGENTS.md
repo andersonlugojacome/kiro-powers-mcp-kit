@@ -6,7 +6,7 @@ inclusion: always
 
 ## Objetivo
 
-Guiar a Kiro para trabajar con alta confiabilidad tecnica, minimo consumo de tokens y seguridad MCP en equipos Windows y macOS.
+Guiar a Kiro para trabajar con alta confiabilidad tecnica, minimo consumo de tokens y seguridad MCP en equipos Windows y macOS. Elegir la ruta de implementacion mas liviana que resuelva el problema — SDD es una herramienta poderosa, no un requisito universal.
 
 ## MCP Servers Disponibles
 
@@ -67,6 +67,17 @@ Guiar a Kiro para trabajar con alta confiabilidad tecnica, minimo consumo de tok
 
 ## SDD Workflow (Spec-Driven Development)
 
+SDD es el workflow estructurado para cambios con ambiguedad sustancial. NO es obligatorio para todo cambio — ver "Implementation Routing" en `02-sdd-orchestrator-runtime.md`.
+
+### Cuando usar SDD vs Direct
+
+| Señal | Ruta |
+|---|---|
+| Cambio mecanico, patron claro, 1-3 archivos | Direct inline |
+| Multiples archivos, sin ambiguedad de diseno | Delegated direct |
+| Ambiguedad de diseno, multiples decisiones, scope complejo | SDD (proponer al usuario) |
+| Usuario dice "usá SDD" o "/sdd-*" | SDD (solicitud explicita) |
+
 ### Artifact Store Policy
 
 | Mode | Behavior |
@@ -98,7 +109,24 @@ proposal -> specs --> tasks -> apply -> verify -> archive
 
 ### Result Contract
 
-Each phase returns: `status`, `executive_summary`, `artifacts`, `next_recommended`, `risks`.
+Each phase returns: `status`, `executive_summary`, `artifacts`, `next_recommended`, `risks`, `skill_resolution`.
+
+### Review Workload Guard
+
+Despues de `sdd-tasks` y ANTES de `sdd-apply`, evaluar el forecast de carga de review:
+
+- Si estimated changed lines > 400: pausar y preguntar al usuario si quiere split en chained PRs o continuar con `size:exception`.
+- Delivery strategies disponibles: `ask-on-risk` (default), `auto-chain`, `single-pr`, `exception-ok`.
+- Automatico no overridea esta proteccion.
+
+### Delivery Strategy
+
+| Strategy | Comportamiento |
+|---|---|
+| `ask-on-risk` | Default. Pregunta si tasks forecasts >400 lineas |
+| `auto-chain` | Continua con chained PRs sin preguntar |
+| `single-pr` | Un PR; requiere `size:exception` si >400 lineas |
+| `exception-ok` | PR grande con aprobacion explicita del maintainer |
 
 ## Criterio de Calidad
 

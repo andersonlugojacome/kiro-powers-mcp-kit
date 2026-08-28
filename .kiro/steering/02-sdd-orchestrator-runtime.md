@@ -6,7 +6,52 @@ inclusion: always
 
 ## Objetivo
 
-Escalar sesiones largas con alta calidad: hilo principal liviano, trabajo pesado delegado y control estricto de concurrencia.
+Escalar sesiones largas con alta calidad: hilo principal liviano, trabajo pesado delegado y control estricto de concurrencia. Elegir la ruta de implementacion mas liviana que resuelva el problema sin ceremonia innecesaria.
+
+## Implementation Routing (Routing Organico)
+
+Cada cambio toma EXACTAMENTE UNA ruta de implementacion. SDD es una opcion valiosa, no un default obligatorio.
+
+### Tres rutas disponibles
+
+| Ruta | Cuando aplica | Que hace |
+|---|---|---|
+| **Direct inline** | 1–3 archivos, cambio mecanico ya entendido, sin ambiguedad de diseno | Editar directamente sin crear artefactos SDD |
+| **Delegated direct** | 4+ archivos para entender, 2+ archivos no-triviales para escribir, research amplio | Delegar a un worker acotado, sin artefactos SDD |
+| **Optional SDD** | Ambiguedad sustancial donde proposal/spec/design/tasks reducen riesgo materialmente | Proponer SDD, ejecutar SOLO tras aceptacion del usuario |
+
+### Regla de oro
+
+- File count, lineas cambiadas, tamaño o riesgo percibido NUNCA fuerzan SDD por si solos.
+- SDD se selecciona SOLO por solicitud explicita del usuario O propuesta aceptada.
+- Direct y delegated NUNCA crean artefactos SDD, prompts de fase, ni runs sinteticos.
+
+### Ejemplos de routing
+
+| Pedido del usuario | Ruta |
+|---|---|
+| "Corregí el typo en utils.ts" | Direct inline |
+| "Renombrá getUserName a getUsername en todo el repo" | Delegated direct (grep revela 15 ocurrencias en 8 archivos) |
+| "Agregá paginación al endpoint /users" | Direct inline o delegated direct (2-3 archivos, patron claro) |
+| "Implementá autenticación con JWT, refresh tokens, y roles" | Optional SDD (ambiguedad en diseño, multiples decisiones) |
+| "Usá SDD para agregar dark mode" | Optional SDD (solicitud explicita) |
+
+## Delegation Stop Rules
+
+Reglas que determinan CUANDO delegar en vez de hacer inline.
+
+| Regla | Trigger | Accion |
+|---|---|---|
+| **Bounded read** | 1–3 archivos para decidir/verificar | Leer inline |
+| **4-file rule** | Entender requiere 4+ archivos | Delegar un task de exploracion acotado |
+| **Write rule** | 2+ archivos no-triviales para escribir | Delegar un writer |
+| **Context rule** | Lectura que prepara un write, o research amplio | Delegar junto con el write |
+| **Per-action rule** | Tests, builds, installs | Worker fresco por accion, sin cambiar ruta |
+| **Optional SDD rule** | Ambiguedad sustancial donde proposal/spec/design reducen riesgo | Proponer SDD al usuario |
+
+### Principio core
+
+> ¿Esto infla el contexto padre sin necesidad? SI → delegar un worker acotado. NO → hacerlo inline.
 
 ## Checklist Operativo
 
@@ -14,18 +59,22 @@ Escalar sesiones largas con alta calidad: hilo principal liviano, trabajo pesado
 2. Incrementar `mcp_query_count`.
 3. Refrescar Context7 cada 4 consultas.
 4. Si duda tecnica, refrescar Context7 de inmediato.
-5. Delegar fases no bloqueantes en background.
-6. Correr `sdd-spec` + `sdd-design` en paralelo (requiere proposal listo).
-7. Ejecutar `sdd-apply` en lotes secuenciales sin solape de archivos.
-8. Reportar estado por fase: OK, WARN o BLOCKED.
-9. Guardar decisiones/hallazgos en Engram al cerrar cada bloque.
-10. Si falla: 1 reintento, luego escalar con alternativa.
+5. Evaluar ruta de implementacion (direct / delegated / SDD) antes de actuar.
+6. Delegar fases no bloqueantes en background.
+7. Correr `sdd-spec` + `sdd-design` en paralelo (requiere proposal listo).
+8. Ejecutar `sdd-apply` en lotes secuenciales sin solape de archivos.
+9. Reportar estado por fase: OK, WARN o BLOCKED.
+10. Guardar decisiones/hallazgos en Engram al cerrar cada bloque.
+11. Si falla: 1 reintento, luego escalar con alternativa.
 
 ## Rol del Orquestador
 
 1. Coordina, sintetiza y pide decisiones.
-2. NO implementa codigo inline cuando una skill/fase SDD aplica.
-3. Usa delegacion como estrategia por defecto.
+2. Evalua ruta de implementacion ANTES de actuar — no toda tarea necesita SDD.
+3. Para direct inline: resuelve directo sin ceremonia.
+4. Para delegated direct: lanza worker(s) acotados sin artefactos SDD.
+5. Para optional SDD: propone, espera aceptacion, LUEGO ejecuta fases.
+6. Usa delegacion como estrategia para escalar, no como ceremonia obligatoria.
 
 ## Concurrencia Permitida
 
