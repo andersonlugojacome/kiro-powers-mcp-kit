@@ -7,6 +7,20 @@ y este proyecto adhiere a [Versionamiento Semántico](https://semver.org/lang/es
 
 ## [No publicado]
 
+## [1.11.0] - 2026-08-28
+
+### Agregado
+- **Engram Protocol v1.15.3+**: Soporte para `capture_prompt` parameter en `mem_save` — diferencia entre saves automatizados (SDD artifacts, `capture_prompt: false`) y saves humanos (decisions/discoveries, default `true`)
+- **`mem_save_prompt` tool**: Documentado en engram-convention. Registra prompt del usuario para SessionActivity y dedup antes de saves derivados.
+- **Skill `skill-registry`**: Skill formalizada para indexar y resolver skills por contexto de archivo y tarea. Genera `.atl/skill-registry.md` + cache hash. Persiste a Engram para cross-session resolution.
+- Nuevas tools en referencia: `mem_session_summary`, `mem_merge_projects`, `mem_doctor`
+- Categoria "Prompt Capture" separada en tools reference
+
+### Cambiado
+- `_shared/engram-convention.md` actualizado: nueva seccion "Prompt Capture Protocol" al inicio, tablas de cuando usar `capture_prompt: true/false`, writing artifacts section con `capture_prompt: false` para SDD, human decisions section sin override
+- `_shared/persistence-contract.md` actualizado: sub-agent prompts incluyen `capture_prompt` guidance
+- `POWER.md` actualizado a v1.11.0 con skill-registry en tabla
+
 ## [1.10.0] - 2026-08-28
 
 ### Agregado

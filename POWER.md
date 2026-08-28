@@ -1,16 +1,16 @@
 ---
 name: "kiro-powers-mcp-kit"
 displayName: "Kiro Powers MCP Kit"
-version: "1.10.0"
+version: "1.11.0"
 icon: "https://raw.githubusercontent.com/andersonlugojacome/kiro-powers-mcp-kit/main/assets/logo.png"
-description: "v1.10.0 — Framework de desarrollo para Kiro con routing organico, delivery workflow (branch-pr, chained-pr, work-unit-commits), quality skills (cognitive-doc-design, comment-writer, judgment-day, issue-creation), memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira)."
-keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation", "loop-controller", "organic-routing", "delegation", "chained-pr", "work-units", "judgment-day", "cognitive-load"]
+description: "v1.11.0 — Framework de desarrollo para Kiro con routing organico, delivery workflow, quality skills, Engram protocol v1.15.3+ (capture_prompt, mem_save_prompt), skill registry formalizado, memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira)."
+keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation", "loop-controller", "organic-routing", "delegation", "chained-pr", "work-units", "judgment-day", "cognitive-load", "skill-registry"]
 author: "Anderson Lugo"
 ---
 
 # Kiro Powers MCP Kit
 
-> **Version instalada: 1.10.0** — Escribi "estatus" para verificar estado MCP.
+> **Version instalada: 1.11.0** — Escribi "estatus" para verificar estado MCP.
 
 ## Overview
 
@@ -275,6 +275,7 @@ Este Power incluye skills SDD en `.kiro/skills/` para uso con Engram GO:
 | `comment-writer` | Comentarios calidos y directos en PRs/issues |
 | `judgment-day` | Review adversarial dual-blind |
 | `issue-creation` | Issues desde evidencia de repo |
+| `skill-registry` | Indexa y resuelve skills por contexto |
 | `skill-creator` | Crea nuevas skills |
 | `mcp-status-assistant` | Muestra estado MCP |
 | `kiro-update-assistant` | Guia actualizaciones |
@@ -297,4 +298,4 @@ This power is licensed under [MIT](LICENSE).
 - [Discussions](https://github.com/andersonlugojacome/kiro-powers-mcp-kit/discussions)
 - [Privacy Policy](https://digitalesweb.com/privacy-policy/)
 - Email: andersonlugojacome@gmail.com
-<!-- release-trigger: v1.10.0 -->
+<!-- release-trigger: v1.11.0 -->

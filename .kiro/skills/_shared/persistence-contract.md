@@ -63,6 +63,7 @@ PERSISTENCE (MANDATORY):
 If you make important discoveries/decisions/fixes, save them:
   mem_save(title: "{description}", type: "{decision|bugfix|discovery}",
            project: "{project}", content: "{What, Why, Where, Learned}")
+Note: capture_prompt defaults to true for human-driven observations.
 ```
 
 **SDD (with dependencies):**
@@ -78,8 +79,11 @@ PERSISTENCE (MANDATORY):
     topic_key: "sdd/{change-name}/{artifact-type}",
     type: "architecture",
     project: "{project}",
+    capture_prompt: false,
     content: "{your full artifact}"
   )
+Note: SDD phase artifacts use capture_prompt: false because they are automated,
+not direct responses to a user prompt.
 ```
 
 ## Engram GO vs server-memory Migration
