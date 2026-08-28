@@ -7,6 +7,18 @@ y este proyecto adhiere a [Versionamiento Semántico](https://semver.org/lang/es
 
 ## [No publicado]
 
+## [1.10.0] - 2026-08-28
+
+### Agregado
+- **Skill `cognitive-doc-design`**: Patrones para docs que reducen carga cognitiva — lead with the answer, progressive disclosure, chunking, signposting, recognition over recall, review empathy. Incluye template de doc shape y reglas para PR descriptions.
+- **Skill `comment-writer`**: Comentarios calidos y directos para colaboracion — formula (observacion + por que + accion), anti-patrones, matching de idioma al contexto.
+- **Skill `judgment-day`**: Review adversarial dual-blind — dos jueces paralelos en scope congelado, merge de hallazgos, fix actor acotado, max 2 rounds, verdicts APPROVED/ESCALATED. Incluye `references/prompts-and-formats.md` con templates de judge, fix actor, y ledger merge rules.
+- **Skill `issue-creation`**: Creacion y triage de issues desde evidencia — duplicate search obligatorio, YAML forms como autoridad, privacy scan, protected labels, decision gates. Incluye `references/delegated-workflow-actions.md` con modelo de autoridad.
+
+### Cambiado
+- `POWER.md` actualizado a v1.10.0 con las 4 nuevas skills en tabla de referencia
+- Keywords actualizados con `judgment-day` y `cognitive-load`
+
 ## [1.9.0] - 2026-08-28
 
 ### Agregado
