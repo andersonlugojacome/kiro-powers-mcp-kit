@@ -1,16 +1,16 @@
 ---
 name: "kiro-powers-mcp-kit"
 displayName: "Kiro Powers MCP Kit"
-version: "1.8.0"
+version: "1.9.0"
 icon: "https://raw.githubusercontent.com/andersonlugojacome/kiro-powers-mcp-kit/main/assets/logo.png"
-description: "v1.8.0 — Framework de desarrollo para Kiro con routing organico (direct/delegated/SDD). Proceso estructurado opcional (SDD, 9 fases), delegation stop rules, review workload guard, memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira)."
-keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation", "loop-controller", "organic-routing", "delegation"]
+description: "v1.9.0 — Framework de desarrollo para Kiro con routing organico (direct/delegated/SDD). Delivery workflow skills (branch-pr, chained-pr, work-unit-commits), review workload guard, memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira)."
+keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation", "loop-controller", "organic-routing", "delegation", "chained-pr", "work-units"]
 author: "Anderson Lugo"
 ---
 
 # Kiro Powers MCP Kit
 
-> **Version instalada: 1.8.0** — Escribi "estatus" para verificar estado MCP.
+> **Version instalada: 1.9.0** — Escribi "estatus" para verificar estado MCP.
 
 ## Overview
 
@@ -268,6 +268,9 @@ Este Power incluye skills SDD en `.kiro/skills/` para uso con Engram GO:
 | `sdd-apply` | Implementa |
 | `sdd-verify` | Verifica |
 | `sdd-archive` | Archiva |
+| `branch-pr` | PRs con issue-first checks y conventional commits |
+| `chained-pr` | Split de PRs >400 lineas en cadenas revisables |
+| `work-unit-commits` | Commits como unidades de trabajo revisables |
 | `skill-creator` | Crea nuevas skills |
 | `mcp-status-assistant` | Muestra estado MCP |
 | `kiro-update-assistant` | Guia actualizaciones |
@@ -290,4 +293,4 @@ This power is licensed under [MIT](LICENSE).
 - [Discussions](https://github.com/andersonlugojacome/kiro-powers-mcp-kit/discussions)
 - [Privacy Policy](https://digitalesweb.com/privacy-policy/)
 - Email: andersonlugojacome@gmail.com
-<!-- release-trigger: v1.8.0 -->
+<!-- release-trigger: v1.9.0 -->

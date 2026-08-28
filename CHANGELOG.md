@@ -7,6 +7,18 @@ y este proyecto adhiere a [Versionamiento Semántico](https://semver.org/lang/es
 
 ## [No publicado]
 
+## [1.9.0] - 2026-08-28
+
+### Agregado
+- **Skill `branch-pr`**: PRs con issue-first checks, branch naming regex, conventional commits, PR template format, automated checks reference
+- **Skill `chained-pr`**: Split de PRs >400 lineas en cadenas revisables, dos estrategias (stacked-to-main, feature-branch-chain), dependency diagrams, chain context section, `references/chaining-details.md` con branch commands y reviewer guidance
+- **Skill `work-unit-commits`**: Commits como unidades de trabajo revisables, reglas de colocacion (tests con codigo, docs con feature), SDD workload guard integration, split examples
+- Tres skills interconectadas con cross-dependency: `work-unit-commits → chained-pr → branch-pr`
+
+### Cambiado
+- `POWER.md` actualizado a v1.9.0 con las 3 nuevas skills en la tabla de referencia
+- Keywords actualizados con `chained-pr` y `work-units`
+
 ## [1.8.0] - 2026-08-28
 
 ### Agregado
