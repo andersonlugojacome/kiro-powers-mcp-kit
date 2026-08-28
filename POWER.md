@@ -1,27 +1,29 @@
 ---
 name: "kiro-powers-mcp-kit"
 displayName: "Kiro Powers MCP Kit"
-version: "1.7.0"
+version: "1.8.0"
 icon: "https://raw.githubusercontent.com/andersonlugojacome/kiro-powers-mcp-kit/main/assets/logo.png"
-description: "v1.7.0 — Framework de desarrollo Spec-Driven para Kiro. Proceso estructurado (SDD, 9 fases), memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira). Execution Loop Controller para ciclos apply⇄verify deterministas."
-keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation", "loop-controller"]
+description: "v1.8.0 — Framework de desarrollo para Kiro con routing organico (direct/delegated/SDD). Proceso estructurado opcional (SDD, 9 fases), delegation stop rules, review workload guard, memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira)."
+keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation", "loop-controller", "organic-routing", "delegation"]
 author: "Anderson Lugo"
 ---
 
 # Kiro Powers MCP Kit
 
-> **Version instalada: 1.7.0** — Escribi "estatus" para verificar estado MCP.
+> **Version instalada: 1.8.0** — Escribi "estatus" para verificar estado MCP.
 
 ## Overview
 
 Este Power es un **framework de desarrollo** que cambia como trabajas con Kiro:
 
-- **SDD Workflow** — Proceso estructurado de 9 fases: cada cambio pasa por spec → design → tasks antes de escribir codigo. Gating obligatorio, TDD estricto, review workload guard.
+- **Routing Organico** — Tres rutas de implementacion: direct inline (1-3 archivos), delegated direct (4+ archivos), y optional SDD (ambiguedad sustancial). El agente elige la mas liviana que resuelva el problema.
+- **SDD Workflow** — Proceso estructurado de 9 fases para cambios complejos: spec → design → tasks antes de escribir codigo. Gating obligatorio, TDD estricto, review workload guard. Se activa por solicitud o propuesta aceptada.
+- **Delegation Stop Rules** — Reglas claras de cuando delegar: 4-file rule, write rule, context rule. Escala sin ceremonia innecesaria.
 - **Engram GO** — Memoria persistente (20 MCP tools, SQLite + FTS5). Persiste artefactos, decisiones y progreso entre sesiones automaticamente.
 - **Context7** — Documentacion actualizada de cualquier libreria via semantic search. Auto-refresh cada 4 queries.
 - **Jira** — Integracion con gestion de equipo (read, write, search) — opcional.
 
-> No es un bundle de herramientas MCP. Es un proceso que impone calidad, con infraestructura de soporte.
+> No es un bundle de herramientas MCP. Es un proceso que impone calidad con la ceremonia justa — SDD cuando hay ambiguedad, directo cuando no.
 
 ## Onboarding
 
@@ -163,7 +165,17 @@ Jira Cloud via MCP local. Package: `@aashari/mcp-server-atlassian-jira`
 
 ## SDD Workflow (Spec-Driven Development)
 
-Workflow estructurado para cambios sustanciales:
+Workflow estructurado para cambios con ambiguedad sustancial. Se activa por solicitud explicita o propuesta aceptada — no por tamaño o riesgo percibido.
+
+### Implementation Routing
+
+| Ruta | Cuando | Ejemplo |
+|---|---|---|
+| **Direct inline** | 1–3 archivos, cambio mecanico, patron claro | Fix typo, rename, agregar campo |
+| **Delegated direct** | 4+ archivos, 2+ writes no-triviales | Rename global, refactor de imports |
+| **Optional SDD** | Ambiguedad de diseno, multiples decisiones | Auth system, feature compleja |
+
+### Fases SDD
 
 | Fase | Comando | Funcion |
 |---|---|---|
@@ -278,4 +290,4 @@ This power is licensed under [MIT](LICENSE).
 - [Discussions](https://github.com/andersonlugojacome/kiro-powers-mcp-kit/discussions)
 - [Privacy Policy](https://digitalesweb.com/privacy-policy/)
 - Email: andersonlugojacome@gmail.com
-<!-- release-trigger: v1.6.1 -->
+<!-- release-trigger: v1.8.0 -->

@@ -7,6 +7,26 @@ y este proyecto adhiere a [Versionamiento Semántico](https://semver.org/lang/es
 
 ## [No publicado]
 
+## [1.8.0] - 2026-08-28
+
+### Agregado
+- **Routing Organico (Implementation Routing)**: tres rutas de implementacion (direct inline, delegated direct, optional SDD) — SDD ya no es el default obligatorio, se activa por solicitud o propuesta aceptada
+- **Delegation Stop Rules**: reglas formales de delegacion (4-file rule, write rule, bounded read, context rule, per-action rule, optional SDD rule) en el orchestrator runtime
+- **Review Workload Guard**: pausa obligatoria si `sdd-tasks` forecasta >400 lineas cambiadas — pregunta split vs `size:exception`
+- **Delivery Strategy**: soporte para `ask-on-risk` (default), `auto-chain`, `single-pr`, `exception-ok` en el orchestrator
+- Se agregó campo `skill_resolution` al Result Contract de cada fase SDD
+
+### Cambiado
+- `02-sdd-orchestrator-runtime.md` reestructurado: nueva seccion "Implementation Routing" al inicio, "Delegation Stop Rules" formalizadas, Rol del Orquestador actualizado con evaluacion de ruta
+- `AGENTS.md` actualizado: objetivo refleja routing organico, seccion SDD documenta cuando usar SDD vs direct, tabla de señales de routing
+- `sdd-workflow.md` (root steering) actualizado: seccion "Implementation Routing" al inicio, delegation stop rules, review workload guard
+- `POWER.md` Overview reescrito: routing organico como feature principal, SDD como opcion para ambiguedad
+
+### Filosofia
+- SDD es una herramienta poderosa para ambiguedad sustancial, no un requisito universal
+- File count, lineas cambiadas, o riesgo percibido NUNCA fuerzan SDD por si solos
+- El agente elige la ruta mas liviana que resuelva el problema sin ceremonia innecesaria
+
 ## [1.7.0] - 2026-07-09
 
 ### Agregado
