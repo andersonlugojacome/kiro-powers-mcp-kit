@@ -1,7 +1,49 @@
 # Engram Artifact Convention (Engram GO)
 
-> Reference documentation for SDD artifact naming and recovery.
-> Backend: Engram GO (Go binary, SQLite + FTS5, 20 MCP tools via stdio).
+> Reference documentation for SDD artifact naming, recovery, and save protocol.
+> Backend: Engram GO (Go binary, SQLite + FTS5, 20+ MCP tools via stdio).
+> Minimum version: v1.15.3+
+
+## Prompt Capture Protocol (v1.15.3+)
+
+### `capture_prompt` parameter
+
+`mem_save` accepts an optional `capture_prompt` parameter (default: `true`):
+
+- **`true` (default)**: Engram attempts to associate the user's prompt context with the observation. Used for human-driven decisions, discoveries, bug fixes, preferences.
+- **`false`**: Skip prompt capture. Used for **automated artifacts** that are not direct responses to a user prompt.
+
+### When to use `capture_prompt: false`
+
+| Artifact type | Example | capture_prompt |
+|---|---|---|
+| SDD phase output | proposal, spec, design, tasks, apply-progress | `false` |
+| sdd-init context | Project detection result | `false` |
+| Skill registry output | Cached skill index | `false` |
+| Verify/archive reports | Automated verification result | `false` |
+| Lessons learned (ELC post-mortem) | Auto-extracted from loop | `false` |
+
+### When to use `capture_prompt: true` (default)
+
+| Artifact type | Example | capture_prompt |
+|---|---|---|
+| Human decisions | Architecture choice, tradeoff accepted | `true` (default) |
+| Bug fixes | Root cause + fix with user context | `true` (default) |
+| Discoveries | Non-obvious behavior found during work | `true` (default) |
+| User preferences | Convention or workflow preference | `true` (default) |
+
+### `mem_save_prompt` tool
+
+Records the user's prompt for session activity and deduplication:
+
+```
+mem_save_prompt(content: "user prompt text", project: "{project}")
+```
+
+- Call BEFORE derived `mem_save` calls when prompt context is needed.
+- Engram deduplicates — safe to call multiple times with same content.
+- Feeds SessionActivity so later `mem_save` calls can capture it.
+- If prompt context already exists for the session, `mem_save` captures it automatically.
 
 ## Naming Rules
 
@@ -91,11 +133,27 @@ mem_save(
   topic_key: "sdd/{change-name}/{artifact-type}",
   type: "architecture",
   project: "{project}",
+  capture_prompt: false,
   content: "{full markdown content}"
 )
 ```
 
 `topic_key` enables upserts — saving again updates, not duplicates.
+`capture_prompt: false` because SDD artifacts are automated, not direct user responses.
+
+### Human Decisions (proactive saves)
+
+```
+mem_save(
+  title: "{Verb + what}",
+  topic_key: "{stable-key}",
+  type: "decision",
+  project: "{project}",
+  content: "**What**: ...\n**Why**: ...\n**Where**: ...\n**Learned**: ..."
+)
+```
+
+No `capture_prompt` needed — defaults to `true` for human-driven observations.
 
 ### Update Existing (by ID)
 
@@ -106,29 +164,34 @@ mem_update(
 )
 ```
 
-## Engram GO Tools Reference (20 tools)
+## Engram GO Tools Reference (20+ tools)
 
 | Category | Tools |
 |---|---|
 | Save & Update | `mem_save`, `mem_update`, `mem_delete`, `mem_suggest_topic_key` |
 | Search & Retrieve | `mem_search`, `mem_context`, `mem_timeline`, `mem_get_observation` |
 | Session Lifecycle | `mem_session_start`, `mem_session_end`, `mem_session_summary` |
+| Prompt Capture | `mem_save_prompt`, `mem_capture_passive` |
 | Conflict Surfacing | `mem_judge`, `mem_compare` |
 | Lifecycle Review | `mem_review` |
-| Utilities | `mem_save_prompt`, `mem_stats`, `mem_capture_passive`, `mem_merge_projects`, `mem_current_project`, `mem_doctor` |
+| Utilities | `mem_stats`, `mem_merge_projects`, `mem_current_project`, `mem_doctor` |
 
 ### Key Tools for SDD Workflow
 
 | Tool | When to use |
 |---|---|
-| `mem_save` | Persist any SDD artifact (upsert via topic_key) |
+| `mem_save` | Persist any SDD artifact (upsert via topic_key). Use `capture_prompt: false` for automated artifacts. |
+| `mem_save_prompt` | Record user prompt before derived saves (feeds SessionActivity for auto-capture) |
 | `mem_search` | Find artifacts by query (returns previews + IDs) |
 | `mem_get_observation` | Get full artifact content by ID |
 | `mem_update` | Update existing artifact by ID (e.g., mark tasks done) |
 | `mem_context` | Get recent session context for a project |
 | `mem_session_start` | Begin SDD session tracking |
 | `mem_session_end` | Close session with summary |
+| `mem_session_summary` | Comprehensive session close (MANDATORY before ending) |
 | `mem_stats` | Check memory stats (observation count, project list) |
+| `mem_merge_projects` | Fix project name drift (merge name variants) |
+| `mem_doctor` | Health check for Engram DB |
 
 ## Why This Convention Exists
 
