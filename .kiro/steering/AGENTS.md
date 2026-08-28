@@ -134,6 +134,51 @@ Despues de `sdd-tasks` y ANTES de `sdd-apply`, evaluar el forecast de carga de r
 - Documentacion corta, verificable y sin ambiguedades.
 - Scripts con mensajes claros de error y recuperacion.
 
+## RDD (Receipt-Driven Development)
+
+### Deteccion al inicio de sesion
+
+Verificar si `gentle-ai` CLI y Go estan disponibles:
+
+```bash
+go version          # Go runtime
+gentle-ai --version # gentle-ai CLI
+```
+
+Si ambos estan instalados, verificar estado de RDD:
+
+```bash
+gentle-ai review mode status --cwd .
+```
+
+### Comportamiento
+
+| Disponibilidad | Accion |
+|---|---|
+| `gentle-ai` NO instalado | Usar 4R lens skills como guias standalone de calidad |
+| Instalado + RDD disabled | Respetar kill switch. No iniciar reviews. |
+| Instalado + RDD enabled | Usar lifecycle nativo via CLI |
+
+### Principio core
+
+> Review es informativo. NUNCA bloquea delivery. Approval es evidencia, no autoridad.
+
+### 4R Lens System
+
+Skills de review en `.kiro/skills/review-{lens}/`:
+
+| Lens | Foco |
+|---|---|
+| `review-risk` (R1) | Seguridad, auth, data exposure, dependencies |
+| `review-readability` (R2) | Naming, complejidad, intencion |
+| `review-reliability` (R3) | Tests, edge cases, contratos |
+| `review-resilience` (R4) | Fallbacks, retry, observabilidad |
+
+Sin CLI: las 4R skills sirven como checklists de calidad durante implementacion.
+Con CLI + RDD enabled: las lenses se seleccionan por riesgo (0 para low, 1 para standard, 4 para high).
+
+Contrato completo: `.kiro/skills/_shared/rdd-contract.md`
+
 ## Actualizacion del Power
 
 - Mecanismo nativo: Powers panel > Check for updates > Install updates

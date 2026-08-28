@@ -166,3 +166,66 @@ Cuando se agotan iteraciones sin PASS, el ELC genera:
 ### Logging obligatorio
 
 Todo rollback fisico se loguea con prefijo `[ELC_ROLLBACK]` indicando archivos restaurados y motivo.
+
+## RDD Awareness (Receipt-Driven Development)
+
+RDD es un sistema de review informativo provisto por `gentle-ai` CLI. El Power lo soporta en dos modos.
+
+### Deteccion de gentle-ai CLI
+
+Al inicio de sesion o antes de la primera accion review-aware:
+
+```bash
+# Verificar si gentle-ai esta instalado
+gentle-ai --version
+
+# Verificar estado de RDD
+gentle-ai review mode status --cwd .
+```
+
+### Comportamiento segun disponibilidad
+
+| `gentle-ai` instalado | RDD habilitado | Comportamiento |
+|---|---|---|
+| No | N/A | Usar 4R lens skills como guias de review standalone. Sin lifecycle nativo. |
+| Si | No (disabled) | Respetar kill switch. No iniciar reviews. Implementar organicamente. |
+| Si | Si (enabled) | Lifecycle nativo completo via CLI. |
+
+### Principio fundamental
+
+> Review es informativo — NUNCA bloquea delivery. Approval es evidencia, no autoridad. Delivery es del humano bajo politica normal del repo.
+
+### Kill switch
+
+- El usuario controla RDD: `gentle-ai review mode enable/disable/status`
+- Cuando disabled: no iniciar reviews, no reintentar, no reactivar.
+- NUNCA habilitar RDD por cuenta propia — solo por solicitud explicita del usuario.
+
+### 4R Lens System
+
+4 lenses de review como skills standalone en `.kiro/skills/review-{lens}/`:
+
+| Lens | ID | Foco |
+|---|---|---|
+| Risk | R1 | Seguridad, boundaries de privilegio, exposicion de datos |
+| Readability | R2 | Naming, complejidad, intencion, mantenibilidad |
+| Reliability | R3 | Tests, edge cases, determinismo, contratos |
+| Resilience | R4 | Fallbacks, retry, degradacion, observabilidad |
+
+### Seleccion de lenses por riesgo
+
+| Riesgo | Lenses | Consentimiento |
+|---|---|---|
+| Low | 0 (structural readback) | No |
+| Standard | 1 focus lens | Si |
+| High (>400 lineas, auth, payments) | 4R completo | Si + forecast |
+
+### Sin CLI: modo documentacion
+
+Cuando `gentle-ai` NO esta instalado, las 4R skills funcionan como:
+- Checklists de calidad durante implementacion
+- Guias de precision para evitar defectos
+- Formato de ledger consistente para hallazgos
+- Sin lifecycle nativo, sin consent, sin correction budget
+
+Contrato completo: `.kiro/skills/_shared/rdd-contract.md`

@@ -1,22 +1,23 @@
 ---
 name: "kiro-powers-mcp-kit"
 displayName: "Kiro Powers MCP Kit"
-version: "1.11.0"
+version: "2.0.0"
 icon: "https://raw.githubusercontent.com/andersonlugojacome/kiro-powers-mcp-kit/main/assets/logo.png"
-description: "v1.11.0 — Framework de desarrollo para Kiro con routing organico, delivery workflow, quality skills, Engram protocol v1.15.3+ (capture_prompt, mem_save_prompt), skill registry formalizado, memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira)."
-keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation", "loop-controller", "organic-routing", "delegation", "chained-pr", "work-units", "judgment-day", "cognitive-load", "skill-registry"]
+description: "v2.0.0 — Framework de desarrollo para Kiro con routing organico, RDD awareness (4R review lenses + gentle-ai CLI detection), delivery workflow, quality skills, Engram GO v1.15.3+, Context7 y Jira."
+keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation", "loop-controller", "organic-routing", "delegation", "chained-pr", "work-units", "judgment-day", "cognitive-load", "skill-registry", "rdd", "review", "4r-lenses"]
 author: "Anderson Lugo"
 ---
 
 # Kiro Powers MCP Kit
 
-> **Version instalada: 1.11.0** — Escribi "estatus" para verificar estado MCP.
+> **Version instalada: 2.0.0** — Escribi "estatus" para verificar estado MCP.
 
 ## Overview
 
 Este Power es un **framework de desarrollo** que cambia como trabajas con Kiro:
 
 - **Routing Organico** — Tres rutas de implementacion: direct inline (1-3 archivos), delegated direct (4+ archivos), y optional SDD (ambiguedad sustancial). El agente elige la mas liviana que resuelva el problema.
+- **RDD Awareness** — Receipt-Driven Development con deteccion de `gentle-ai` CLI. Si esta instalado y habilitado: review nativo con 4R lenses. Si no: las lenses sirven como guias de calidad standalone. Review es informativo, NUNCA bloquea delivery.
 - **SDD Workflow** — Proceso estructurado de 9 fases para cambios complejos: spec → design → tasks antes de escribir codigo. Gating obligatorio, TDD estricto, review workload guard. Se activa por solicitud o propuesta aceptada.
 - **Delegation Stop Rules** — Reglas claras de cuando delegar: 4-file rule, write rule, context rule. Escala sin ceremonia innecesaria.
 - **Engram GO** — Memoria persistente (20 MCP tools, SQLite + FTS5). Persiste artefactos, decisiones y progreso entre sesiones automaticamente.
@@ -202,6 +203,49 @@ proposal -> specs --> tasks -> apply -> verify -> archive
 
 Todos los artefactos SDD se persisten automaticamente en Engram GO via `topic_key` (upserts, sin duplicados).
 
+## RDD (Receipt-Driven Development)
+
+Review informativo provisto por `gentle-ai` CLI. Se detecta automaticamente al inicio de sesion.
+
+### Prerequisitos
+
+```bash
+# Verificar disponibilidad
+go version            # Go runtime
+gentle-ai --version   # gentle-ai CLI
+```
+
+### Modos de operacion
+
+| `gentle-ai` instalado | RDD habilitado | Comportamiento |
+|---|---|---|
+| No | N/A | 4R lens skills como guias de calidad standalone |
+| Si | No (disabled) | Respetar kill switch, implementar organicamente |
+| Si | Si (enabled) | Lifecycle nativo completo via CLI |
+
+### 4R Lens System
+
+| Lens | ID | Foco |
+|---|---|---|
+| Risk | R1 | Seguridad, auth, data exposure, dependencies |
+| Readability | R2 | Naming, complejidad, intencion, mantenibilidad |
+| Reliability | R3 | Tests, edge cases, determinismo, contratos |
+| Resilience | R4 | Fallbacks, retry, degradacion, observabilidad |
+
+### Principio fundamental
+
+> Review es informativo. NUNCA bloquea delivery. Approval es evidencia, no autoridad. Delivery es del humano.
+
+### Kill Switch
+
+```bash
+gentle-ai review mode enable --scope global   # activar
+gentle-ai review mode disable --cwd .         # desactivar
+gentle-ai review mode status --cwd .          # consultar
+```
+
+Contrato completo: `.kiro/skills/_shared/rdd-contract.md`
+
 ## Best Practices
 
 ### Memoria (Engram GO)
@@ -276,6 +320,10 @@ Este Power incluye skills SDD en `.kiro/skills/` para uso con Engram GO:
 | `judgment-day` | Review adversarial dual-blind |
 | `issue-creation` | Issues desde evidencia de repo |
 | `skill-registry` | Indexa y resuelve skills por contexto |
+| `review-risk` | R1: Seguridad, auth, data exposure, dependencies |
+| `review-readability` | R2: Naming, complejidad, intencion, mantenibilidad |
+| `review-reliability` | R3: Tests, edge cases, determinismo, contratos |
+| `review-resilience` | R4: Fallbacks, retry, degradacion, observabilidad |
 | `skill-creator` | Crea nuevas skills |
 | `mcp-status-assistant` | Muestra estado MCP |
 | `kiro-update-assistant` | Guia actualizaciones |
@@ -298,4 +346,4 @@ This power is licensed under [MIT](LICENSE).
 - [Discussions](https://github.com/andersonlugojacome/kiro-powers-mcp-kit/discussions)
 - [Privacy Policy](https://digitalesweb.com/privacy-policy/)
 - Email: andersonlugojacome@gmail.com
-<!-- release-trigger: v1.11.0 -->
+<!-- release-trigger: v2.0.0 -->
