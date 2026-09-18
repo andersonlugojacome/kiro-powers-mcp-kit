@@ -5,13 +5,14 @@
 <h1 align="center">Kiro Powers MCP Kit</h1>
 
 <p align="center">
-  <strong>Framework de desarrollo Spec-Driven para Kiro</strong> — proceso estructurado, memoria persistente y documentacion viva.
+  <strong>Framework de desarrollo organico (ODD) para Kiro</strong> — routing por complejidad real, memoria persistente y documentacion viva.
 </p>
 
 <p align="center">
   <a href="https://github.com/andersonlugojacome/kiro-powers-mcp-kit/releases/latest"><img src="https://img.shields.io/github/v/release/andersonlugojacome/kiro-powers-mcp-kit?style=flat-square&color=6366f1" alt="Release"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License"/></a>
-  <img src="https://img.shields.io/badge/SDD-9%20phases-6366f1?style=flat-square" alt="SDD Phases"/>
+  <img src="https://img.shields.io/badge/ODD-organic%20routing-6366f1?style=flat-square" alt="ODD"/>
+  <img src="https://img.shields.io/badge/RDD-independent%20switch-f59e0b?style=flat-square" alt="RDD"/>
   <img src="https://img.shields.io/badge/powers-P1--P5%20%2B%20P10-34d399?style=flat-square" alt="Powers"/>
 </p>
 
@@ -21,7 +22,7 @@
 
 Desarrollar con AI agents hoy tiene 3 problemas que nadie resuelve con herramientas sueltas:
 
-1. **Codigo sin spec** — el agente genera codigo sin definir primero que debe hacer, como, ni por que. Resultado: rework constante.
+1. **Proceso todo-o-nada** — o el agente tira codigo ad-hoc sin pensar, o te obliga a ceremonia pesada (spec/design/tasks) hasta para un typo. Ninguno de los dos escala.
 2. **Amnesia entre sesiones** — cada vez que abris una conversacion nueva, perdiste todo el contexto anterior. Decisiones, descubrimientos, patrones: se evaporan.
 3. **Documentacion muerta** — se consultan docs desactualizadas y se toman decisiones sobre APIs que ya cambiaron.
 
@@ -31,29 +32,67 @@ Estos no son problemas de *herramientas*. Son problemas de **proceso**.
 
 Un **framework de desarrollo** que cambia COMO trabajas con Kiro:
 
-> **No es un bundle de herramientas MCP. Es un proceso estructurado (SDD) con infraestructura de soporte.**
+> **No es un bundle de herramientas MCP. Es un proceso organico (ODD) que elige la ruta mas liviana que resuelve el problema, con infraestructura de soporte.**
 
 | Capa | Funcion | Como |
 |------|---------|------|
-| **Proceso (SDD Workflow)** | Define COMO se desarrolla cada cambio | 9 fases: explore → propose → spec → design → tasks → apply → verify → archive |
+| **Proceso (ODD)** | Elige la ruta de implementacion por complejidad real | Direct inline / Delegated direct / Optional SDD |
+| **Planificacion (SDD)** | Rama dentro de ODD para cambios con ambiguedad sustancial | explore → propose → spec → design → tasks → apply → verify → archive |
+| **Review (RDD)** | Switch independiente, informativo, nunca bloquea delivery | `review assess` con tiers de riesgo (passive/medium/high) |
 | **Memoria (Engram GO)** | Persiste decisiones, hallazgos y artefactos entre sesiones | SQLite + FTS5, 20 MCP tools, topic-key upserts |
 | **Documentacion (Context7)** | Garantiza que se consulten docs actualizadas | Semantic search sobre librerias, auto-refresh cada 4 queries |
 | **Integracion (Jira)** | Conecta el proceso con la gestion del equipo | Read/write/search — opcional |
 
-## Por que un framework y no solo herramientas
+## ODD — Organic Driven Development (el nucleo)
 
-| Solo herramientas (antes) | Framework SDD (ahora) |
-|---|---|
-| El agente genera codigo ad-hoc | Cada cambio pasa por spec → design → tasks antes de escribir una linea |
-| Se pierde contexto entre sesiones | Engram persiste artefactos, decisiones y progreso automaticamente |
-| No hay trazabilidad de decisiones | Cada fase produce un artefacto verificable (proposal, spec, design, tasks) |
-| Code review sin baseline | `sdd-verify` compara implementacion contra specs — review objectivo |
-| Docs desactualizadas | Context7 refresca docs automaticamente, sin intervencion manual |
-| Sin control de calidad de proceso | Gating obligatorio: no se puede implementar sin spec y design aprobados |
-| TDD opcional | Strict TDD Mode: se detectan capabilities y se fuerza test-first |
-| Loops infinitos de correccion | Execution Loop Controller: criterio de parada, rollback granular y restricciones acumuladas |
+Cada pedido entra en ODD, en cada runtime, sin que tengas que pedir un workflow. ODD elige **una** de tres rutas de implementacion segun la complejidad real del cambio — nunca por conteo de lineas ni riesgo percibido.
 
-## SDD Workflow — El nucleo del framework
+```
+                    ┌─ pedido del usuario ─┐
+                    │                      │
+              ¿autoriza cambio?      (si no: read-only)
+                    │
+              explorar + clasificar
+                    │
+      ┌─────────────┼──────────────────────┐
+      ▼             ▼                       ▼
+ Direct inline  Delegated direct       Optional SDD
+ (1-3 archivos, (4+ archivos para      (ambiguedad sustancial;
+  mecanico,      entender, 2+ para      SOLO por pedido explicito
+  sin diseno)    escribir, research)    o propuesta aceptada)
+```
+
+| Ruta | Cuando aplica | Que hace |
+|------|---------------|----------|
+| **Direct inline** | 1–3 archivos, cambio mecanico ya entendido, sin ambiguedad de diseno | Edita directamente, sin artefactos SDD |
+| **Delegated direct** | 4+ archivos para entender, 2+ archivos no-triviales para escribir, research amplio | Delega a un worker acotado, sin artefactos SDD |
+| **Optional SDD** | Ambiguedad de diseno, multiples decisiones, scope complejo | Propone SDD; ejecuta SOLO tras aceptacion del usuario |
+
+**Regla de oro**: el numero de archivos, las lineas cambiadas o el riesgo percibido NUNCA fuerzan SDD por si solos. SDD se selecciona SOLO por solicitud explicita del usuario o propuesta aceptada.
+
+### Mandatory Delegation Triggers
+
+ODD delega automaticamente para mantener el hilo principal liviano:
+
+| Trigger | Se dispara cuando | Accion |
+|---|---|---|
+| **Mapping** | Entender requiere 4+ archivos | Delegar una exploracion acotada antes de decidir |
+| **Writer** | Implementacion toca 2+ archivos no-triviales | Delegar un writer acotado en vez de editar inline |
+| **Preparation** | Lectura que prepara un write, o research amplio | Delegar junto con o antes del write |
+| **Long-session backstop** | ~20 tool calls / 5 lecturas / 2 edits sin delegar | Pausar y delegar la siguiente unidad |
+
+### Tracking automatico (solo para trabajo sustancial)
+
+Cuando el trabajo es sustancial (2+ pasos de implementacion o progreso que vale recuperar tras una interrupcion), ODD crea automaticamente antes del primer write:
+
+- `odd/tasks/<feature-name>.md` — documento vivo con objetivo, scope, checklist, criterios y evidencia
+- Espejo en Engram bajo el topic `odd/<feature-name>/tasks` — recuperable en cualquier sesion futura
+
+El trabajo pequeño y entendido NO crea artefactos: se resuelve inline sin ceremonia.
+
+## SDD Workflow — La rama de planificacion
+
+SDD es una **rama dentro de ODD**, no el default. Se usa cuando el cambio tiene ambiguedad sustancial que proposal/spec/design reducen materialmente.
 
 ```
   explore ─→ propose ─→ spec ──→ tasks ─→ apply ─→ verify ─→ archive
@@ -77,7 +116,7 @@ Un **framework de desarrollo** que cambia COMO trabajas con Kiro:
 
 ### Fast-forward
 
-Para cambios donde ya tenes claridad:
+Para cambios donde ya tenes claridad y elegiste SDD:
 
 ```
 /sdd-ff <nombre-del-cambio>
@@ -85,14 +124,15 @@ Para cambios donde ya tenes claridad:
 
 Ejecuta: propose → spec → design → tasks en secuencia sin pausas intermedias.
 
-> 📖 **Nuevo en SDD?** Lee la [Guía de Inicio paso a paso](docs/sdd-getting-started.md) — de cero a tu primer cambio completado.
+> 📖 **Nuevo en el framework?** Lee la [Guía de Inicio paso a paso](docs/sdd-getting-started.md) — ODD por defecto, SDD cuando aplica.
 
 ### Ventajas concretas
 
-- **Review Workload Guard** — si un cambio supera 400 lineas, el framework propone chained PRs automaticamente
-- **Strict TDD Mode** — detecta test runner y fuerza ciclos test-first en apply
-- **Cross-session continuity** — todo artefacto queda en Engram con `topic_key`, recuperable en cualquier sesion futura
-- **Dependency gating** — no se puede hacer apply sin tasks, no se puede hacer tasks sin spec+design. El proceso impone calidad.
+- **Routing organico** — la ruta mas liviana que resuelve el problema; sin ceremonia innecesaria
+- **Delivery por work units** — commits como unidades revisables; si el forecast supera ~400 lineas, propone chained PRs
+- **Strict TDD Mode** — detecta test runner y fuerza ciclos test-first cuando esta habilitado
+- **Cross-session continuity** — el documento de feature y su espejo Engram se recuperan en cualquier sesion futura
+- **Dependency gating (en SDD)** — no se hace apply sin tasks, ni tasks sin spec+design
 - **Delivery strategy** — soporta `ask-on-risk`, `auto-chain`, `single-pr`, `exception-ok`
 - **Execution Loop Controller** — gobierna el ciclo apply⇄verify con control determinista (ver abajo)
 
@@ -128,6 +168,41 @@ El ELC transforma el ciclo implicito `apply → falla → re-apply` en un proces
 | **Post-mortem inteligente** | Lecciones arquitectonicas se persisten en Engram (no typos ni errores mecanicos) |
 | **Aislamiento por tarea** | El fallo de Task 1.1 no afecta ni bloquea Task 1.2 |
 
+## RDD — Receipt-Driven Development (switch independiente)
+
+Desde gentle-ai v3.0.0, **RDD salio del lifecycle de SDD** y es un sistema de review independiente, opt-in y **off por defecto**. El usuario lo controla con un switch:
+
+```bash
+gentle-ai review mode enable    # activar
+gentle-ai review mode disable   # desactivar (kill switch)
+gentle-ai review mode status    # solo lectura, no cambia nada
+```
+
+### Principio fundamental
+
+> **Review es informativo — NUNCA bloquea delivery. Approval es evidencia, no autoridad. Delivery es del humano bajo la politica normal del repo.**
+
+### Seleccion por tier de riesgo (`review assess`)
+
+Con RDD habilitado, cada candidato (un work-unit commit o una PR slice) se evalua con `gentle-ai review assess` y cae en un tier:
+
+| Tier | Comportamiento | Consentimiento |
+|---|---|---|
+| **Passive / Low** | Checks estructurales silenciosos; la frontera avanza | No |
+| **Medium** | Se difiere; el candidato es la PR slice acumulada (~400 lineas) | Si |
+| **High** | Review completo (auth, payments, >400 lineas) | Si + forecast |
+
+Nunca se infiere "low" de un assessment fallido. Sin `gentle-ai` CLI, las 4R lens funcionan como checklists de calidad standalone durante la implementacion.
+
+### 4R Lens System
+
+| Lens | ID | Foco |
+|---|---|---|
+| Risk | R1 | Seguridad, boundaries de privilegio, exposicion de datos |
+| Readability | R2 | Naming, complejidad, intencion, mantenibilidad |
+| Reliability | R3 | Tests, edge cases, determinismo, contratos |
+| Resilience | R4 | Fallbacks, retry, degradacion, observabilidad |
+
 ## Infraestructura MCP (lo que soporta el framework)
 
 ### Engram GO — Memoria persistente
@@ -136,7 +211,7 @@ El ELC transforma el ciclo implicito `apply → falla → re-apply` en un proces
 { "command": "engram", "args": ["mcp"] }
 ```
 
-20 MCP tools. Persiste artefactos SDD, decisiones, hallazgos, y progreso de apply entre sesiones.
+20 MCP tools. Persiste artefactos SDD/ODD, decisiones, hallazgos, y progreso entre sesiones.
 Docs: [docs/setup-engram.md](docs/setup-engram.md)
 
 ### Context7 — Documentacion viva
@@ -207,6 +282,7 @@ cp .env.sample .env
 | `sdd-apply` | Implementa siguiendo specs |
 | `sdd-verify` | Verifica contra specs y tasks |
 | `sdd-archive` | Archiva cambio completado |
+| `review-risk` / `review-readability` / `review-reliability` / `review-resilience` | 4R lens de review (standalone o via RDD) |
 | `skill-creator` | Crea nuevas skills |
 | `mcp-status-assistant` | Muestra estado MCP |
 | `kiro-update-assistant` | Guia actualizaciones |
@@ -218,10 +294,10 @@ cp .env.sample .env
 ├── mcp.json                # MCP servers (Kiro los registra)
 ├── steering/               # Workflows del framework
 │   ├── mcp-workflow.md     # Politica de orquestacion MCP
-│   └── sdd-workflow.md     # Reglas de proceso SDD
+│   └── sdd-workflow.md     # Reglas de proceso ODD + SDD
 ├── .kiro/
-│   ├── skills/             # 12 skills SDD + operativas
-│   └── steering/           # Steering detallado
+│   ├── skills/             # Skills SDD + review (4R) + operativas
+│   └── steering/           # Steering detallado (ODD runtime)
 ├── docs/                   # Guias de setup por server
 ├── scripts/                # Verificacion cross-platform
 └── .github/workflows/      # CI
