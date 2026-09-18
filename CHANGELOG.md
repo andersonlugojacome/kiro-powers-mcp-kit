@@ -31,6 +31,29 @@ Alineacion con gentle-ai v3.x: el framework pasa de SDD-first a **ODD-first** (O
 - NO se adopta la dependencia de la CLI nativa `gentle-ai` (review/sdd-status): degrada a file-based
 - NO se incluyen `go-testing` ni `gentle-ai-bench` (product-specific de gentle-ai)
 - Artefactos SDD de este cambio persistidos en Engram (`sdd/v3-skills-migration/*`)
+## [2.0.0] - 2026-08-28
+
+### Agregado
+- **RDD Awareness (Receipt-Driven Development)**: Deteccion automatica de `gentle-ai` CLI + Go al inicio de sesion. Si instalado y habilitado: lifecycle nativo. Si no: 4R lens skills como guias de calidad standalone.
+- **4R Review Lens Skills**: Cuatro skills de review read-only portadas de gentle-ai upstream:
+  - `review-risk` (R1): Seguridad, privilege boundaries, data exposure, dependencies
+  - `review-readability` (R2): Naming, complejidad, intencion, mantenibilidad
+  - `review-reliability` (R3): Tests, coverage, edge cases, determinismo, contratos
+  - `review-resilience` (R4): Fallbacks, retry/backoff, graceful degradation, observabilidad
+- **`_shared/rdd-contract.md`**: Contrato completo de RDD — kill switch, risk tiers, lens selection, consent model, correction budget, findings ledger schema, integracion con skills existentes
+- Seccion "RDD Awareness" en orchestrator runtime (`02-sdd-orchestrator-runtime.md`) con deteccion de CLI, tabla de comportamiento, 4R overview
+- Seccion "RDD" en AGENTS.md con deteccion de Go + gentle-ai, principio informativo, 4R table
+- Seccion "RDD" en POWER.md con prerequisitos, modos de operacion, 4R table, kill switch commands
+
+### Cambiado
+- `POWER.md` bump a v2.0.0 — Overview incluye RDD awareness como feature principal
+- Breaking: el Power ahora asume que si `gentle-ai` esta disponible, se usa nativamente para review
+
+### Filosofia
+- Review es informativo — NUNCA bloquea delivery
+- El kill switch es del usuario — el agente NUNCA habilita RDD por cuenta propia
+- Sin CLI las 4R lenses funcionan como checklists de calidad, sin lifecycle nativo
+- Severity: BLOCKER/CRITICAL entran al fix loop, WARNING/SUGGESTION son info
 
 ## [1.11.0] - 2026-08-28
 

@@ -1,10 +1,20 @@
-# Guía de Inicio: SDD (Spec-Driven Development)
+# Guía de Inicio: ODD + SDD
 
-> De cero a tu primer cambio completado con el framework SDD.
+> De cero a tu primer cambio completado. ODD elige la ruta por vos; SDD es la rama de planificacion cuando el cambio lo amerita.
+
+## Qué es ODD en 30 segundos
+
+ODD (Organic Driven Development) es el proceso por defecto. Cada pedido entra en ODD sin que tengas que pedir un workflow. ODD **explora primero** y luego elige la ruta mas liviana que resuelve el problema:
+
+- **Direct inline** — cambio mecanico ya entendido, 1–3 archivos, sin ambiguedad de diseno. Se edita directo.
+- **Delegated direct** — 4+ archivos para entender o 2+ archivos no-triviales para escribir. Se delega a un worker acotado.
+- **Optional SDD** — ambiguedad de diseno o multiples decisiones. Se propone SDD y se ejecuta SOLO si vos lo aceptas.
+
+**Regla de oro**: el numero de archivos, las lineas cambiadas o el riesgo percibido NUNCA fuerzan SDD por si solos. SDD se elige por pedido explicito tuyo o propuesta aceptada.
 
 ## Qué es SDD en 30 segundos
 
-SDD es un proceso que te obliga a PENSAR antes de CODEAR. En vez de pedirle al agente "haceme un login" y que tire código al azar, SDD fuerza este orden:
+SDD (Spec-Driven Development) es la **rama de planificacion dentro de ODD** para cambios con ambiguedad sustancial. Te obliga a PENSAR antes de CODEAR con este orden:
 
 1. **Definir QUÉ** (spec) → qué debe hacer exactamente
 2. **Definir CÓMO** (design) → qué arquitectura y patrones usar
@@ -56,9 +66,46 @@ En Kiro, escribí: **"estatus"** — te mostrará el estado de los MCP servers.
 
 ---
 
+## Como decide ODD la ruta (arbol de decision)
+
+No tenés que elegir la ruta vos. ODD la elige explorando primero:
+
+```
+pedido → ¿autoriza un cambio?
+           │
+           ├─ NO (investigar/explicar/comparar) → read-only, no escribe nada
+           │
+           └─ SI → explorar + clasificar
+                    │
+                    ├─ mecanico, 1-3 archivos, claro     → Direct inline
+                    ├─ 4+ archivos / 2+ escrituras        → Delegated direct
+                    └─ ambiguedad de diseno / decisiones  → propone Optional SDD
+```
+
+Ejemplos:
+
+| Pedís | Ruta que elige ODD |
+|---|---|
+| "Corregí el typo en utils.ts" | Direct inline |
+| "Renombrá getUserName a getUsername en todo el repo" | Delegated direct |
+| "Agregá paginación al endpoint /users" | Direct o delegated (patron claro) |
+| "Implementá auth con JWT, refresh tokens y roles" | Propone SDD |
+| "Usá SDD para agregar dark mode" | SDD (pedido explicito) |
+
+### Tracking automatico
+
+Cuando el trabajo es sustancial (2+ pasos de implementacion o progreso que vale recuperar), ODD crea automaticamente antes del primer write:
+
+- `odd/tasks/<feature-name>.md` — documento vivo con objetivo, scope, checklist, criterios y evidencia
+- Espejo en Engram bajo el topic `odd/<feature-name>/tasks`
+
+El trabajo pequeño NO crea artefactos: se resuelve inline sin ceremonia.
+
+---
+
 ## Tu primer cambio con SDD (paso a paso)
 
-Vamos a hacer un cambio real en tu proyecto. Puede ser nuevo o existente.
+Cuando ODD propone SDD (o vos lo pedís), este es el flujo. Puede ser un proyecto nuevo o existente.
 
 ---
 
@@ -151,7 +198,7 @@ Esto ejecuta la SIGUIENTE fase pendiente y te pide aprobación antes de continua
 - Máximo 3 intentos por tarea — si no se resuelve, te escala con contexto
 - Cada fallo se comprime como restricción para el siguiente intento
 
-**Nota**: Apply puede ejecutarse en LOTES. Si hay 6 tareas en 2 fases, primero implementa Phase 1 (tareas 1.1-1.3) y después Phase 2 (tareas 2.1-2.3).
+**Nota**: Apply puede ejecutarse en LOTES. Si hay 6 tareas en 2 fases, primero implementa Phase 1 (tareas 1.1-1.3) y después Phase 2 (tareas 2.1-2.3). Cada tarea cierra con un work-unit commit (comportamiento + tests + docs) usando Conventional Commits.
 
 ---
 
@@ -184,11 +231,11 @@ Esto ejecuta la SIGUIENTE fase pendiente y te pide aprobación antes de continua
 
 ---
 
-## Resumen visual del flujo
+## Resumen visual del flujo SDD
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         SDD WORKFLOW                             │
+│              SDD WORKFLOW (rama dentro de ODD)                  │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  /sdd-init          → Detecta tu stack (1 sola vez)             │
@@ -203,7 +250,7 @@ Esto ejecuta la SIGUIENTE fase pendiente y te pide aprobación antes de continua
 │  /sdd-ff            → Spec + Design + Tasks (automático)        │
 │       │                                                         │
 │       ▼                                                         │
-│  /sdd-apply         → Implementa por lotes                      │
+│  /sdd-apply         → Implementa por lotes (work-unit commits)  │
 │       │                                                         │
 │       ▼                                                         │
 │  /sdd-verify        → Valida contra specs                       │
@@ -213,6 +260,30 @@ Esto ejecuta la SIGUIENTE fase pendiente y te pide aprobación antes de continua
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Review con RDD (opcional, off por defecto)
+
+RDD (Receipt-Driven Development) es un sistema de review **independiente de SDD**, provisto por `gentle-ai` CLI. Es opt-in y esta **apagado por defecto**. Lo controlas con un switch:
+
+```bash
+gentle-ai review mode enable    # activar
+gentle-ai review mode disable   # desactivar (kill switch)
+gentle-ai review mode status    # solo lectura
+```
+
+**Principio**: review es informativo — NUNCA bloquea delivery. Approval es evidencia, no autoridad.
+
+Con RDD habilitado, cada candidato (work-unit commit o PR slice) se evalua con `gentle-ai review assess` y cae en un tier de riesgo:
+
+| Tier | Comportamiento | Consentimiento |
+|---|---|---|
+| Passive / Low | Checks estructurales silenciosos | No |
+| Medium | Se difiere a la PR slice acumulada (~400 lineas) | Si |
+| High | Review completo (auth, payments, >400 lineas) | Si + forecast |
+
+Sin `gentle-ai` instalado, las 4R lens (`review-risk`, `review-readability`, `review-reliability`, `review-resilience`) funcionan como checklists de calidad standalone durante la implementacion.
 
 ---
 
@@ -249,6 +320,7 @@ Cuando invocás un flujo SDD por primera vez, Kiro te pregunta:
 | `/sdd-apply <cambio>` | Implementa tareas por lotes |
 | `/sdd-verify <cambio>` | Valida implementación contra specs |
 | `/sdd-archive <cambio>` | Cierra y archiva el cambio |
+| `gentle-ai review mode status` | Ver estado de RDD (si tenés gentle-ai CLI) |
 
 ---
 
@@ -256,7 +328,11 @@ Cuando invocás un flujo SDD por primera vez, Kiro te pregunta:
 
 ### ¿Necesito usar SDD para TODO?
 
-No. SDD es para cambios medianos a grandes (múltiples archivos, lógica nueva, features). Para un typo, un one-liner, o un config change, simplemente pedile a Kiro que lo haga directamente.
+No. ODD elige la ruta por vos. SDD es solo para cambios con ambiguedad sustancial (múltiples decisiones de diseño). Para un typo, un one-liner, o un config change, ODD lo resuelve inline sin ceremonia.
+
+### ¿Cuándo se activa SDD?
+
+Solo cuando ODD detecta ambiguedad de diseño y te lo PROPONE, o cuando vos lo pedís explícitamente ("usá SDD", "/sdd-new"). Nunca se fuerza por conteo de archivos o líneas.
 
 ### ¿Qué pasa si me equivoqué en la spec?
 
@@ -268,7 +344,7 @@ Sí. `/sdd-init` detecta que no hay código y adapta el contexto. Luego podés u
 
 ### ¿Qué pasa entre sesiones?
 
-Todo queda en Engram. La próxima vez que abrás Kiro, escribí `/sdd-continue <cambio>` y retoma donde dejaste.
+Todo queda en Engram. Para trabajo ODD sustancial se recupera con `mem_context` + el documento `odd/tasks/<feature>.md`. Para SDD, escribí `/sdd-continue <cambio>` y retoma donde dejaste.
 
 ### ¿Qué es el Execution Loop Controller?
 
@@ -277,6 +353,10 @@ Es el motor que evita loops infinitos cuando algo falla. Si la implementación n
 2. Decide si hacer fix encima (PATCH) o empezar de nuevo (ROLLBACK)
 3. Reintenta con la restricción como regla obligatoria
 4. Máximo 3 intentos — si no se resuelve, te muestra el contexto para que decidas vos
+
+### ¿Tengo que activar RDD?
+
+No. RDD está apagado por defecto y es totalmente opcional. Si no tenés `gentle-ai` CLI, las 4R lens siguen sirviendo como checklists de calidad. Si querés review con tiers de riesgo, activalo con `gentle-ai review mode enable`.
 
 ### ¿Funciona con mi proyecto en [lenguaje X]?
 
@@ -326,10 +406,10 @@ Kiro:    ✅ Cambio archivado. Lecciones persistidas en Engram.
 
 ## Siguiente paso
 
-Abrí Kiro en tu proyecto y escribí:
+Abrí Kiro en tu proyecto y simplemente pedile lo que necesitás — ODD elige la ruta. Para un cambio con ambiguedad de diseño, inicializá SDD:
 
 ```
 /sdd-init
 ```
 
-Después de eso, pensá en un cambio pequeño que quieras hacer y probá el flujo completo. La primera vez toma ~10 minutos. Después de entender el proceso, cada cambio estructurado te ahorra horas de rework.
+Después probá un cambio: los pequeños se resuelven inline, los complejos entran por SDD. La primera vez que uses SDD toma ~10 minutos; después cada cambio estructurado te ahorra horas de rework.
