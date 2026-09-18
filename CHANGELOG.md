@@ -7,6 +7,31 @@ y este proyecto adhiere a [Versionamiento Semántico](https://semver.org/lang/es
 
 ## [No publicado]
 
+## [3.0.0] - 2026-09-18
+
+Alineacion con gentle-ai v3.x: el framework pasa de SDD-first a **ODD-first** (Organic Driven Development), con SDD como rama de planificacion y RDD como switch de review independiente. Migracion **portable/file-based** (Opcion A): el Power sigue funcionando sin la CLI gentle-ai instalada.
+
+### Agregado
+- **Skills nuevos**: `sdd-research`, `sdd-onboard`, `rdd-defect-workflow`, `systemic-issue-triage`, `skill-improver`
+- **Contratos _shared nuevos**: `review-ledger-contract.md` (+ variante `-pi`), `research-lifecycle.md`, `skill-resolver.md`, `sdd-status-contract.md`, `sdd-orchestrator-sections.md`, `README.md`
+- **Documentacion ODD**: README y `docs/sdd-getting-started.md` reescritos con las 3 rutas de implementacion (direct inline / delegated direct / optional SDD), Mandatory Delegation Triggers, tracking automatico `odd/tasks/`, y RDD con tiers de riesgo (passive/medium/high) + 4R lens
+
+### Cambiado
+- **9 skills SDD** actualizados al contenido v3.x (ODD routing, work-unit delivery, references/ y strict-tdd companions)
+- **Skills de delivery/quality** actualizados: `branch-pr`, `chained-pr`, `work-unit-commits`, `cognitive-doc-design`, `comment-writer`, `judgment-day`, `issue-creation`, `skill-creator`, `skill-registry`
+- Clausula de **fallback file-based** insertada donde los contratos referencian la CLI nativa `gentle-ai`, para preservar la portabilidad del Power
+- `docs/powers-roadmap.md`: nota de ODD default + RDD independiente
+
+### Conservado
+- Las **4R review lenses** (`review-risk/readability/reliability/resilience`) se mantienen standalone
+- Contratos file-based `_shared/rdd-contract.md` y `_shared/loop-controller-contract.md`
+- `mcp-status-assistant` y `kiro-update-assistant` (Power-especificos: cubren los 3 MCP servers y el updater del repo) NO se sobrescribieron con la version v3
+
+### Notas
+- NO se adopta la dependencia de la CLI nativa `gentle-ai` (review/sdd-status): degrada a file-based
+- NO se incluyen `go-testing` ni `gentle-ai-bench` (product-specific de gentle-ai)
+- Artefactos SDD de este cambio persistidos en Engram (`sdd/v3-skills-migration/*`)
+
 ## [1.11.0] - 2026-08-28
 
 ### Agregado
