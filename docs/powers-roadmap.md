@@ -1,11 +1,13 @@
 # Powers Roadmap
 
+> Desde v3.0.0 el framework opera con **ODD (Organic Driven Development)** como protocolo por defecto: cada Power soporta el routing organico (direct inline / delegated direct / optional SDD). **RDD** es un switch de review independiente, off por defecto.
+
 ## Estado actual
 
 | Power | Nombre | Estado | Notas |
 |---|---|---|---|
-| P1 | Contexto inteligente por proyecto | ✅ Implementado | Via Engram GO `mem_context` + `sdd-init` |
-| P2 | Reuso con memoria (Engram-first) | ✅ Implementado | Skills SDD + persistence contract v2 |
+| P1 | Contexto inteligente por proyecto | ✅ Implementado | Via Engram GO `mem_context` + `sdd-init`, ODD explora antes de clasificar |
+| P2 | Reuso con memoria (Engram-first) | ✅ Implementado | Skills SDD + persistence contract v2 + espejo `odd/<feature>/tasks` |
 | P3 | Documentacion viva (Context7) | ✅ Implementado | Refresh cada 4 queries, steering automatizado |
 | P4 | Health check ampliado | ✅ Implementado | `scripts/setup.sh` + `mcp-status-assistant` |
 | P5 | Actualizacion guiada | ✅ Implementado | `kiro-update-assistant` via Import Power From Github |
