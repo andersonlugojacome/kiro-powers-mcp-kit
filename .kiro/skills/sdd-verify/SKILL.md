@@ -1,348 +1,65 @@
 ---
 name: sdd-verify
-description: >
-  Validate that implementation matches specs, design, and tasks.
-  Trigger: When the orchestrator launches you to verify a completed (or partially completed) change.
+description: "Trigger: explicitly requested SDD verification. Run optional practical diagnostics against available implementation and artifacts."
+disable-model-invocation: true
+user-invocable: false
 license: MIT
 metadata:
   author: gentleman-programming
-  version: "2.0"
+  version: "4.0"
+  delegate_only: true
 ---
 
-## Purpose
+## Execution Role
 
-You are a sub-agent responsible for VERIFICATION. You are the quality gate. Your job is to prove — with real execution evidence — that the implementation is complete, correct, and behaviorally compliant with the specs.
+If you are the dedicated `sdd-verify` executor, perform the diagnostics below; do not delegate. If you are the orchestrator loading this skill, delegate to that executor.
 
-Static analysis alone is NOT enough. You must execute the code.
+## Activation Contract
 
-## What You Receive
+Run when the orchestrator explicitly requests verification. Verification is optional, not a prerequisite for archive.
 
-From the orchestrator:
-- Change name
-- Artifact store mode (`engram | openspec | hybrid | none`)
+## Language Domain Contract
 
-## Execution and Persistence Contract
+Generated technical artifacts default to English. Do not inherit the user's conversational language or the active persona's regional voice for SDD artifacts unless the user explicitly requests that artifact language or the project convention requires it.
 
-- If mode is `engram`:
+If technical artifacts are explicitly requested in another language, use a neutral/professional register unless the user explicitly requests a different tone or regional variant.
 
-  **CRITICAL: `mem_search` returns 300-char PREVIEWS, not full content. You MUST call `mem_get_observation(id)` for EVERY artifact. If you skip this, you will verify against incomplete specs and miss issues.**
+Public/contextual comments follow the target context language by default. Explicit user language or tone overrides win; otherwise use a neutral/professional register unless the target context clearly calls for another tone or regional variant.
 
-  **STEP A — SEARCH** (get IDs only — content is truncated):
-  1. `mem_search(query: "sdd/{change-name}/proposal", project: "{project}")` → save ID
-  2. `mem_search(query: "sdd/{change-name}/spec", project: "{project}")` → save ID
-  3. `mem_search(query: "sdd/{change-name}/design", project: "{project}")` → save ID
-  4. `mem_search(query: "sdd/{change-name}/tasks", project: "{project}")` → save ID
+## Hard Rules
 
-  **STEP B — RETRIEVE FULL CONTENT** (mandatory for each):
-  5. `mem_get_observation(id: {proposal_id})` → full proposal
-  6. `mem_get_observation(id: {spec_id})` → full spec (REQUIRED for compliance matrix)
-  7. `mem_get_observation(id: {design_id})` → full design
-  8. `mem_get_observation(id: {tasks_id})` → full tasks
+- Use the supplied structured status, artifact store, change identity, and edit permissions. Verification grants no mutation authority; do not fix code or tasks.
+- Inspect available artifacts and implementation, including partial work. Missing artifacts limit conclusions, not permission to report useful diagnostics.
+- Preserve user-owned `strict_tdd`, test commands, and model/provider/profile/effort selection. When Strict TDD is active, load `strict-tdd-verify.md` and assess the available apply-progress evidence honestly; never fabricate historical RED or GREEN.
+- Report actual command results and limitations. Source inspection, unchecked tasks, and unexecuted tests are not runtime proof. Missing tooling means unavailable checks, not PASS.
+- Do not require a report schema, validator, immutable attestation, evidence search, or settlement. Missing, stale, malformed, or failed reports do not gate archive.
+- SDD never offers, launches, or consumes RDD. Findings do not start automatic review, refuter, or correction loops.
+- Apply `rules.verify` from `openspec/config.yaml` to requested diagnostics without treating report format as archive authority.
 
-  **DO NOT use search previews as source material.**
+## Decision Gates
 
-  **Save your artifact**:
-  ```
-  mem_save(
-    title: "sdd/{change-name}/verify-report",
-    topic_key: "sdd/{change-name}/verify-report",
-    type: "architecture",
-    project: "{project}",
-    content: "{your full verification report markdown}"
-  )
-  ```
-  `topic_key` enables upserts — saving again updates, not duplicates. (Read `../_shared/sdd-phase-common.md`.)
+| Condition | Action |
+|---|---|
+| Partial implementation or missing specs/design | Inspect what exists; name unfinished work and skipped dimensions. |
+| Strict TDD active | Check actual TDD evidence for implemented work; disclose missing evidence. |
+| Test/build fails or a requirement is unmet | Report the finding and its evidence, without editing or certifying completion. |
+| Tooling or permission unavailable | Report the limitation; do not bypass authorization. |
+| Workspace-planning context | Limit diagnostics to accessible planning artifacts; do not edit linked repositories. |
 
-  (See `../_shared/engram-convention.md` for full naming conventions.)
-- If mode is `openspec`: Read and follow `../_shared/openspec-convention.md`. Save to `openspec/changes/{change-name}/verify-report.md`.
-- If mode is `hybrid`: Follow BOTH conventions — persist to Engram AND write `verify-report.md` to filesystem.
-- If mode is `none`: Return the verification report inline only. Never write files.
+## Execution Steps
 
-## What to Do
+1. Load relevant skills and retrieve available artifacts through shared Sections A/B, using the supplied locators and active store.
+2. Compare implemented behavior with available requirements and design. Record task completion as observed; do not rewrite checkboxes.
+3. Run applicable tests, build/type-check, and other practical project checks within the authorized scope. Adapt depth to the change; do not force exhaustive scenario searches or a fixed evidence matrix.
+4. Record commands, exit codes, useful output, findings, and unavailable or unrun checks. Distinguish verified behavior from assumptions and static observations.
+5. Persist the diagnostic report through shared Section C when the selected store permits it; preserve prior historical findings and identify what changed. Do not rewrite old user reports merely to satisfy a format. Return shared Section D.
 
-### Step 1: Load Skills
+## Output Contract
 
-The orchestrator provides your skill path in the launch prompt. Load it now. If no path was provided, proceed without additional skills.
+Return concise findings, observed task state, executed checks and their outcomes, limitations, and recommended next work. A diagnostic report may be partial or failed; neither blocks archive. Completed implementation normally proceeds to archive; unfinished implementation normally returns to apply. Archive records the actual state, never a synthetic PASS.
 
-> Read `../_shared/sdd-phase-common.md` for the engram upsert note and return envelope format.
+## References
 
-### Step 2: Check Completeness
-
-Verify ALL tasks are done:
-
-```
-Read tasks.md
-├── Count total tasks
-├── Count completed tasks [x]
-├── List incomplete tasks [ ]
-└── Flag: CRITICAL if core tasks incomplete, WARNING if cleanup tasks incomplete
-```
-
-### Step 3: Check Correctness (Static Specs Match)
-
-For EACH spec requirement and scenario, search the codebase for structural evidence:
-
-```
-FOR EACH REQUIREMENT in specs/:
-├── Search codebase for implementation evidence
-├── For each SCENARIO:
-│   ├── Is the GIVEN precondition handled in code?
-│   ├── Is the WHEN action implemented?
-│   ├── Is the THEN outcome produced?
-│   └── Are edge cases covered?
-└── Flag: CRITICAL if requirement missing, WARNING if scenario partially covered
-```
-
-Note: This is static analysis only. Behavioral validation with real execution happens in Step 6.
-
-### Step 4: Check Coherence (Design Match)
-
-Verify design decisions were followed:
-
-```
-FOR EACH DECISION in design.md:
-├── Was the chosen approach actually used?
-├── Were rejected alternatives accidentally implemented?
-├── Do file changes match the "File Changes" table?
-└── Flag: WARNING if deviation found (may be valid improvement)
-```
-
-### Step 5: Check Testing (Static)
-
-Verify test files exist and cover the right scenarios:
-
-```
-Search for test files related to the change
-├── Do tests exist for each spec scenario?
-├── Do tests cover happy paths?
-├── Do tests cover edge cases?
-├── Do tests cover error states?
-└── Flag: WARNING if scenarios lack tests, SUGGESTION if coverage could improve
-```
-
-### Step 5b: Run Tests (Real Execution)
-
-Detect the project's test runner and execute the tests:
-
-```
-Detect test runner from:
-├── openspec/config.yaml → rules.verify.test_command (highest priority)
-├── package.json → scripts.test
-├── pyproject.toml / pytest.ini → pytest
-├── Makefile → make test
-└── Fallback: ask orchestrator
-
-Execute: {test_command}
-Capture:
-├── Total tests run
-├── Passed
-├── Failed (list each with name and error)
-├── Skipped
-└── Exit code
-
-Flag: CRITICAL if exit code != 0 (any test failed)
-Flag: WARNING if skipped tests relate to changed areas
-```
-
-### Step 5c: Build & Type Check (Real Execution)
-
-Detect and run the build/type-check command:
-
-```
-Detect build command from:
-├── openspec/config.yaml → rules.verify.build_command (highest priority)
-├── package.json → scripts.build → also run tsc --noEmit if tsconfig.json exists
-├── pyproject.toml → python -m build or equivalent
-├── Makefile → make build
-└── Fallback: skip and report as WARNING (not CRITICAL)
-
-Execute: {build_command}
-Capture:
-├── Exit code
-├── Errors (if any)
-└── Warnings (if significant)
-
-Flag: CRITICAL if build fails (exit code != 0)
-Flag: WARNING if there are type errors even with passing build
-```
-
-### Step 5d: Coverage Validation (Real Execution — if threshold configured)
-
-Run with coverage only if `rules.verify.coverage_threshold` is set in `openspec/config.yaml`:
-
-```
-IF coverage_threshold is configured:
-├── Run: {test_command} --coverage (or equivalent for the test runner)
-├── Parse coverage report
-├── Compare total coverage % against threshold
-├── Flag: WARNING if below threshold (not CRITICAL — coverage alone doesn't block)
-└── Report per-file coverage for changed files only
-
-IF coverage_threshold is NOT configured:
-└── Skip this step, report as "Not configured"
-```
-
-### Step 6: Spec Compliance Matrix (Behavioral Validation)
-
-This is the most important step. Cross-reference EVERY spec scenario against the actual test run results from Step 5b to build behavioral evidence.
-
-For each scenario from the specs, find which test(s) cover it and what the result was:
-
-```
-FOR EACH REQUIREMENT in specs/:
-  FOR EACH SCENARIO:
-  ├── Find tests that cover this scenario (by name, description, or file path)
-  ├── Look up that test's result from Step 5b output
-  ├── Assign compliance status:
-  │   ├── ✅ COMPLIANT   → test exists AND passed
-  │   ├── ❌ FAILING     → test exists BUT failed (CRITICAL)
-  │   ├── ❌ UNTESTED    → no test found for this scenario (CRITICAL)
-  │   └── ⚠️ PARTIAL    → test exists, passes, but covers only part of the scenario (WARNING)
-  └── Record: requirement, scenario, test file, test name, result
-```
-
-A spec scenario is only considered COMPLIANT when there is a test that passed proving the behavior at runtime. Code existing in the codebase is NOT sufficient evidence.
-
-### Step 7: Persist Verification Report
-
-Persist the report according to the resolved `artifact_store.mode`, following the conventions in `../_shared/`:
-
-- **engram**: Use `engram-convention.md` — artifact type `verify-report`
-- **openspec**: Write to `openspec/changes/{change-name}/verify-report.md`
-- **none**: Return the full report inline, do NOT write any files
-
-### Step 8: Return Summary
-
-Return to the orchestrator the same content you wrote to `verify-report.md`:
-
-```markdown
-## Verification Report
-
-**Change**: {change-name}
-**Version**: {spec version or N/A}
-
----
-
-### Completeness
-| Metric | Value |
-|--------|-------|
-| Tasks total | {N} |
-| Tasks complete | {N} |
-| Tasks incomplete | {N} |
-
-{List incomplete tasks if any}
-
----
-
-### Build & Tests Execution
-
-**Build**: ✅ Passed / ❌ Failed
-```
-{build command output or error if failed}
-```
-
-**Tests**: ✅ {N} passed / ❌ {N} failed / ⚠️ {N} skipped
-```
-{failed test names and errors if any}
-```
-
-**Coverage**: {N}% / threshold: {N}% → ✅ Above threshold / ⚠️ Below threshold / ➖ Not configured
-
----
-
-### Spec Compliance Matrix
-
-| Requirement | Scenario | Test | Result |
-|-------------|----------|------|--------|
-| {REQ-01: name} | {Scenario name} | `{test file} > {test name}` | ✅ COMPLIANT |
-| {REQ-01: name} | {Scenario name} | `{test file} > {test name}` | ❌ FAILING |
-| {REQ-02: name} | {Scenario name} | (none found) | ❌ UNTESTED |
-| {REQ-02: name} | {Scenario name} | `{test file} > {test name}` | ⚠️ PARTIAL |
-
-**Compliance summary**: {N}/{total} scenarios compliant
-
----
-
-### Correctness (Static — Structural Evidence)
-| Requirement | Status | Notes |
-|------------|--------|-------|
-| {Req name} | ✅ Implemented | {brief note} |
-| {Req name} | ⚠️ Partial | {what's missing} |
-| {Req name} | ❌ Missing | {not implemented} |
-
----
-
-### Coherence (Design)
-| Decision | Followed? | Notes |
-|----------|-----------|-------|
-| {Decision name} | ✅ Yes | |
-| {Decision name} | ⚠️ Deviated | {how and why} |
-
----
-
-### Issues Found
-
-**CRITICAL** (must fix before archive):
-{List or "None"}
-
-**WARNING** (should fix):
-{List or "None"}
-
-**SUGGESTION** (nice to have):
-{List or "None"}
-
----
-
-### Verdict
-{PASS / PASS WITH WARNINGS / FAIL}
-
-{One-line summary of overall status}
-
----
-
-### Loop Feedback (MANDATORY when invoked per-task by ELC)
-
-When the orchestrator invokes you for a single task verification (as part of the Execution Loop Controller cycle), you MUST include this structured object in your return envelope under the key `loop_feedback`. See `.kiro/skills/_shared/loop-controller-contract.md` for the full JSON schema.
-
-```json
-{
-  "status": "PASS | FAIL",
-  "error_criticality": "NONE | LOW | HIGH | CRITICAL",
-  "suggested_action": "NONE | PATCH_FORWARD | ROLLBACK_AND_RETRY",
-  "raw_error_summary": "Max 200 chars — compressed error from compiler/linter/test",
-  "extracted_constraints": [
-    {
-      "approach_id": "Approach_01",
-      "failure_cause": "Root cause in one sentence",
-      "constraint_directive": "Explicit negation: what the next attempt MUST NOT do"
-    }
-  ],
-  "trigger_context_refresh": false
-}
-```
-
-**Decision rules for `suggested_action`:**
-- `PATCH_FORWARD`: Syntax errors, missing imports, undeclared variables, minor test assertion failures — the code structure is sound.
-- `ROLLBACK_AND_RETRY`: Design pattern violations, wrong architectural approach, severe regressions in adjacent files — the approach itself is wrong.
-
-**Decision rules for `trigger_context_refresh`:**
-- Set `true` if error contains patterns like: `undefined function`, `no attribute`, `deprecated`, `MethodNotFound`, `SignatureMismatch`, `module has no exported member`.
-- Set `false` for all other error types.
-
-When invoked for a full batch verification (not per-task ELC), the `loop_feedback` field is optional but recommended with `status: "PASS"` or `status: "FAIL"` as a summary.
-```
-
-## Rules
-
-- ALWAYS read the actual source code — don't trust summaries
-- ALWAYS execute tests — static analysis alone is not verification
-- A spec scenario is only COMPLIANT when a test that covers it has PASSED
-- Compare against SPECS first (behavioral correctness), DESIGN second (structural correctness)
-- Be objective — report what IS, not what should be
-- CRITICAL issues = must fix before archive
-- WARNINGS = should fix but won't block
-- SUGGESTIONS = improvements, not blockers
-- DO NOT fix any issues — only report them. The orchestrator decides what to do.
-- In `openspec` mode, ALWAYS save the report to `openspec/changes/{change-name}/verify-report.md` — this persists the verification for sdd-archive and the audit trail
-- Apply any `rules.verify` from `openspec/config.yaml`
-- Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, `risks`, and `loop_feedback` (mandatory on per-task ELC invocations — read `../_shared/loop-controller-contract.md` and `../_shared/sdd-phase-common.md` for the full envelope spec)
+- [references/report-format.md](references/report-format.md) — optional report outline.
+- [strict-tdd-verify.md](strict-tdd-verify.md) — only when Strict TDD is active.
+- `../_shared/sdd-phase-common.md` — skill loading, retrieval, persistence, and return envelope.

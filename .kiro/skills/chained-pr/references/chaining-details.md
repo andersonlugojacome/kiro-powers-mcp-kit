@@ -1,75 +1,99 @@
-# Chaining Details — Reference
+# Chained PR Details
 
-## Branch Commands (Stacked to Main)
+## Strategy Notes
 
-```bash
-# PR #1
-git checkout -b feat/auth-token-model main
-# ... implement + commit
-git push -u origin feat/auth-token-model
-gh pr create --base main --title "feat(auth): add token model" --body "Closes #N"
+| | Stacked PRs to main | Feature Branch Chain |
+|---|---|---|
+| Speed | Each slice can ship in order | Full feature waits for tracker merge |
+| Rollback | Revert individual main PRs | Revert/hold the whole feature branch |
+| Risk | Partial behavior may land | Nothing lands until the chain completes |
+| Complexity | Simpler retarget/rebase flow | Requires tracker and strict diff hygiene |
 
-# PR #2 (after PR #1 merged)
-git checkout main && git pull
-git checkout -b feat/auth-login-flow main
-# ... implement + commit
-git push -u origin feat/auth-login-flow
-gh pr create --base main --title "feat(auth): wire login flow" --body "Closes #N"
+## Feature Branch Chain
+
+Use when the feature branch accumulates the final integration while child PRs are reviewed as focused slices.
+
+```text
+main
+ └── feat/my-feature              ← tracker/final integration branch
+      ↑ PR #1 base: feat/my-feature
+      └── feat/my-feature-01-core
+           ↑ PR #2 base: feat/my-feature-01-core
+           └── feat/my-feature-02-shared
+                ↑ PR #3 base: feat/my-feature-02-shared
+                └── feat/my-feature-03-slice
 ```
 
-## Branch Commands (Feature Branch Chain)
+Steps:
 
-```bash
-# Create tracker branch
-git checkout -b feat/auth main
-git push -u origin feat/auth
-gh pr create --base main --title "feat(auth): complete auth system" --body "Tracker PR — do not merge until all children integrate" --draft
+1. Create the feature/tracker branch from `main`.
+2. Open the tracker PR to `main`; mark it draft/no-merge.
+3. Create PR #1 from a child branch and target it to the tracker branch.
+4. Create each later child branch from the previous PR branch and target it to that parent branch.
+5. Merge/integrate children in order; merge the tracker only after the chain is complete.
 
-# PR #1 targets tracker
-git checkout -b feat/auth-token-model feat/auth
-# ... implement + commit
-git push -u origin feat/auth-token-model
-gh pr create --base feat/auth --title "feat(auth): add token model" --body "Closes #N"
+## Stacked PRs to Main
 
-# PR #2 targets PR #1 branch for focused diff
-git checkout -b feat/auth-login-flow feat/auth-token-model
-# ... implement + commit
-git push -u origin feat/auth-login-flow
-gh pr create --base feat/auth-token-model --title "feat(auth): wire login flow" --body "Closes #N"
+Use when each slice can land on `main` in order.
+
+```text
+main <- PR 1: foundation
+          └── PR 2: feature slice built on PR 1
+                └── PR 3: docs/tests built on PR 2
 ```
 
-## Rebase Workflow (keeping chain clean)
+After a parent PR merges, rebase/retarget the next PR so GitHub shows only the current slice.
+
+## Chain Context Section
+
+Append this section to the repo PR template; do not replace required issue/checklist sections.
+
+```markdown
+## Chain Context
+
+| Field | Value |
+|-------|-------|
+| Chain | <feature or stack name> |
+| Tracker PR | <#NNN or "Not needed"> |
+| Position | <N of total> |
+| Base | `<target branch>` |
+| Depends on | <PR/issue/link or "None"> |
+| Follow-up | <next PR or "None"> |
+| Review budget | <changed lines> / 400 |
+| Starts at | <branch, PR, or state this builds on> |
+| Ends with | <standalone result delivered by this PR> |
+
+### Chain Overview
+
+```text
+main
+ └── #NNN Previous PR
+      └── 📍 #NNN This PR
+           └── #NNN Next PR
+```
+
+### Scope
+- Includes: <focused unit>
+- Excludes: <deferred work>
+
+### Autonomy
+- [ ] CI is expected to pass for this PR branch
+- [ ] This PR has one deliverable scope
+- [ ] This PR can be rolled back without unrelated changes
+- [ ] Tests, docs, or manual verification cover this unit
+```
+
+## Commands
 
 ```bash
-# After PR #1 merged to tracker, rebase PR #2
-git checkout feat/auth-login-flow
-git rebase feat/auth
-git push --force-with-lease origin feat/auth-login-flow
-# Retarget PR #2 base to feat/auth
-gh pr edit <pr-number> --base feat/auth
+gh pr view <PR_NUMBER> --json additions,deletions,changedFiles,title,url
+gh pr create --base feat/my-feature --title "feat(scope): focused slice" --body-file pr-body.md
+gh pr create --base feat/my-feature-01-core --title "feat(scope): next focused slice" --body-file pr-body.md
 ```
 
 ## Reviewer Guidance
 
-For reviewers of chained PRs:
-
-1. **Read the Chain Context** section first to understand position and scope.
-2. **Review only the current work unit** — earlier work was reviewed in prior PRs.
-3. **Check the dependency diagram** to understand what's merged and what's coming.
-4. **Verify the diff is clean** — only current work unit changes should appear.
-5. **Approve in order** — don't approve PR #3 before PR #2 is reviewed.
-
-## Size Metrics
-
-- **Budget threshold**: 400 changed lines (additions + deletions).
-- **Target review time**: ≤60 minutes per PR.
-- **Ideal size**: 200-300 changed lines for focused review.
-- **Exception**: `size:exception` label required for PRs that cannot split cleanly (migrations, generated code, vendor updates).
-
-## SDD Integration
-
-When working with SDD:
-- `sdd-tasks` produces a Review Workload Forecast.
-- If forecast says `Chained PRs recommended: Yes`, load this skill.
-- Follow the cached `delivery_strategy` from the SDD session.
-- Map SDD task groups to PR boundaries (one task group ≈ one PR).
+- Ask for a split when a PR exceeds 400 changed lines without `size:exception`.
+- Recommend Feature Branch Chain when work must integrate before `main`.
+- Recommend stacked PRs when each slice can merge independently.
+- Review child PRs against immediate parent branches; a polluted diff is a branching bug.

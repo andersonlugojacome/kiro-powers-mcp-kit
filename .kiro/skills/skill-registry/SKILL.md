@@ -7,104 +7,45 @@ metadata:
   version: "1.0"
 ---
 
-## When to Use
+## Activation Contract
 
-Load this skill when:
-- Skills have been added, removed, or modified
-- User asks to update or refresh the skill registry
-- Starting a new session that needs skill awareness
-- The orchestrator needs to resolve which skills to pass to sub-agents
+Use this skill after installing, removing, creating, moving, or renaming skills, or when a delegator needs a fresh skill index.
 
-## Purpose
+## Hard Rules
 
-The skill registry is a cached index of all available skills — both project-level (`.kiro/skills/`) and user-level. It enables:
+- The registry is an index, not a compiler or summary. `SKILL.md` remains the source of truth.
+- Do not generate or inject compact rules by default; preserve author intent by passing exact skill paths to subagents.
+- Always write `.atl/skill-registry.md` regardless of SDD persistence mode.
+- Save the registry to Engram as `topic_key: skill-registry` when available, with `capture_prompt: false`.
+- Skip `sdd-*`, `_shared`, and `skill-registry`; deduplicate by skill name, preferring project-level skills over user-level skills.
+- Add `.atl/` to `.gitignore` when possible unless explicitly disabled.
 
-1. **Fast skill resolution**: The orchestrator matches skills by file context and task context without reading every SKILL.md.
-2. **Sub-agent injection**: Resolved skill paths are passed to sub-agents so they load instructions BEFORE doing work.
-3. **Cache invalidation**: A fingerprint hash detects when skills change and the registry needs refresh.
+## Decision Gates
 
-## Registry Location
-
-| File | Purpose |
-|---|---|
-| `.atl/skill-registry.md` | Human-readable index (skill name, trigger, scope, path) |
-| `.atl/.skill-registry.cache.json` | Fingerprint hash for cache invalidation |
-
-Both are gitignored (`.atl/` is local). The registry is rebuilt on demand.
+| Situation | Action |
+| --- | --- |
+| Same skill exists globally and in project | Keep the project-level skill |
+| Same skill exists in multiple global locations | Keep the first source in scan order |
+| No skills found | Write an empty registry so agents stop searching blindly |
+| Agent will delegate work | Select matching registry rows and pass their `SKILL.md` paths |
 
 ## Execution Steps
 
-### Build / Refresh Registry
+1. Scan all known user and project skill directories for `*/SKILL.md`.
+2. Read frontmatter only as needed to extract `name` and `description` trigger text.
+3. Render `.atl/skill-registry.md` with scanned sources, registry contract, skill name, trigger/description, scope, and exact path.
+4. Persist to Engram when available using `title: skill-registry`, `topic_key: skill-registry`, `type: config`, and `capture_prompt: false`.
+5. Return the registry path, skill count, cache status, and whether Engram was updated.
 
-```
-1. SCAN `.kiro/skills/` for all SKILL.md files
-2. PARSE each SKILL.md frontmatter (name, description, metadata)
-3. EXTRACT trigger conditions from description field
-4. SCAN user-level skill dirs if accessible
-5. BUILD registry index with: name, trigger/description, scope (project|user), exact path
-6. COMPUTE fingerprint hash from all SKILL.md mtimes + paths
-7. WRITE `.atl/skill-registry.md` (readable index)
-8. WRITE `.atl/.skill-registry.cache.json` (fingerprint for invalidation)
-9. PERSIST to Engram: mem_save(title: "skill-registry", topic_key: "skill-registry/{project}", type: "config", project: "{project}", capture_prompt: false, content: "{registry content}")
-```
+## Output Contract
 
-### Resolve Skills (for sub-agent injection)
+Return:
+- Project name and `.atl/skill-registry.md` path.
+- Number of indexed skills.
+- Whether the cache was hit or regenerated.
+- Any skipped or duplicate skills when relevant.
 
-```
-1. CHECK cache: is `.atl/.skill-registry.cache.json` still valid?
-   - If stale → rebuild first
-   - If valid → use cached registry
-2. MATCH skills by:
-   - File context: extensions/paths the sub-agent will touch
-   - Task context: what the sub-agent is being asked to do
-3. RETURN matching SKILL.md absolute paths for injection
-```
+## References
 
-## Registry Format
-
-```markdown
-# Skill Registry — {project}
-
-Last updated: {ISO date}
-Skills indexed: {count}
-
-## Project Skills (.kiro/skills/)
-
-| Skill | Trigger | Path |
-|-------|---------|------|
-| sdd-init | sdd init, initialize project | .kiro/skills/sdd-init/SKILL.md |
-| branch-pr | creating PRs, preparing branches | .kiro/skills/branch-pr/SKILL.md |
-| ... | ... | ... |
-
-## User Skills (~/.config/opencode/skills/ or ~/.kiro/skills/)
-
-| Skill | Trigger | Path |
-|-------|---------|------|
-| ... | ... | ... |
-```
-
-## Skill Resolution Rules
-
-| Context | Matching strategy |
-|---|---|
-| Writing code | Match by file extensions in target paths |
-| Creating PRs | `branch-pr`, `chained-pr` (if >400 lines) |
-| Writing commits | `work-unit-commits` |
-| Writing docs | `cognitive-doc-design` |
-| Creating issues | `issue-creation` |
-| Reviewing code | `judgment-day` (if adversarial), `comment-writer` (for feedback) |
-| SDD phases | Direct invoke by phase name (not via registry) |
-
-## Cache Invalidation
-
-The fingerprint hash changes when:
-- A SKILL.md is added, removed, or modified
-- The `.kiro/skills/` directory structure changes
-- User explicitly requests refresh (`/skill-registry` or "actualizar skills")
-
-## Critical Rules
-
-- SDD phase skills (sdd-init through sdd-archive) are NOT in the registry — they are invoked directly by the orchestrator by phase name.
-- The registry is a delegator-only artifact — sub-agents receive resolved paths, never the registry itself.
-- Registry rebuild is idempotent — safe to run multiple times.
-- Always persist to Engram with `capture_prompt: false` (automated artifact).
+- `docs/skill-style-guide.md` — how skills should be authored before indexing.
+- `skills/_shared/skill-resolver.md` — how delegators use the index.

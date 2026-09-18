@@ -1,13 +1,30 @@
 ---
 name: sdd-propose
-description: >
-  Create a change proposal with intent, scope, and approach.
-  Trigger: When the orchestrator launches you to create or update a proposal for a change.
+description: "Create an SDD change proposal with intent, scope, and approach. Trigger: orchestrator launches proposal work for a change."
+disable-model-invocation: true
+user-invocable: false
 license: MIT
 metadata:
   author: gentleman-programming
   version: "2.0"
+  delegate_only: true
 ---
+
+## Execution Role
+
+Confirm your role before acting. You are the dedicated `sdd-propose` sub-agent unless you loaded this skill directly through the `skill()` tool.
+
+- If you are the `sdd-propose` sub-agent, continue with the phase work below. Do not delegate. Do not call the Skill tool.
+- If you loaded this skill through the `skill()` tool, you are the orchestrator. Stop here and delegate to the dedicated `sdd-propose` sub-agent using your platform's delegation primitive (for example, `task(...)` or a sub-agent invocation).
+
+
+## Language Domain Contract
+
+Generated technical artifacts default to English. Do not inherit the user's conversational language or the active persona's regional voice for SDD artifacts unless the user explicitly requests that artifact language or the project convention requires it.
+
+If technical artifacts are explicitly requested in another language, use a neutral/professional register unless the user explicitly requests a different tone or regional variant.
+
+Public/contextual comments follow the target context language by default. Explicit user language or tone overrides win; otherwise use a neutral/professional register unless the target context clearly calls for another tone or regional variant.
 
 ## Purpose
 
@@ -17,44 +34,23 @@ You are a sub-agent responsible for creating PROPOSALS. You take the exploration
 
 From the orchestrator:
 - Change name (e.g., "add-dark-mode")
-- Exploration analysis (from sdd-explore) OR direct user description
+- The objective, known product decisions, and available exploration/research findings
 - Artifact store mode (`engram | openspec | hybrid | none`)
 
 ## Execution and Persistence Contract
 
-- If mode is `engram`:
+> Follow **Section B** (retrieval) and **Section C** (persistence) from `skills/_shared/sdd-phase-common.md`.
 
-  **Read dependencies** (two-step — search returns truncated previews):
-  1. `mem_search(query: "sdd/{change-name}/explore", project: "{project}")` → get observation ID (optional — may not exist)
-  2. If found: `mem_get_observation(id: {id})` → full exploration content
-  3. `mem_search(query: "sdd-init/{project}", project: "{project}")` → project context (optional)
-  4. If found: `mem_get_observation(id: {id})` → full project context
-
-  **Save your artifact**:
-  ```
-  mem_save(
-    title: "sdd/{change-name}/proposal",
-    topic_key: "sdd/{change-name}/proposal",
-    type: "architecture",
-    project: "{project}",
-    content: "{your full proposal markdown}"
-  )
-  ```
-  `topic_key` enables upserts — saving again updates, not duplicates. (Read `../_shared/sdd-phase-common.md`.)
-
-  (See `../_shared/engram-convention.md` for full naming conventions.)
-- If mode is `openspec`: Read and follow `../_shared/openspec-convention.md`.
-- If mode is `hybrid`: Follow BOTH conventions — persist to Engram AND write to filesystem. Retrieve dependencies from Engram (primary) with filesystem fallback.
-- If mode is `none`: Return result only. Never create or modify project files.
+- **engram**: Read `sdd/{change-name}/explore` (optional) and `sdd-init/{project}` (optional). Save artifact as `sdd/{change-name}/proposal`.
+- **openspec**: Read and follow `skills/_shared/openspec-convention.md`.
+- **hybrid**: Follow BOTH conventions — persist to Engram AND write to filesystem. Retrieve dependencies from Engram (primary) with filesystem fallback.
+- **none**: Return result only. Never create or modify project files.
 - Never force `openspec/` creation unless user requested file-based persistence or mode is `hybrid`.
 
 ## What to Do
 
 ### Step 1: Load Skills
-
-The orchestrator provides your skill path in the launch prompt. Load it now. If no path was provided, proceed without additional skills.
-
-> Read `../_shared/sdd-phase-common.md` for the engram upsert note and return envelope format.
+Follow **Section A** from `skills/_shared/sdd-phase-common.md`.
 
 ### Step 2: Create Change Directory
 
@@ -96,6 +92,24 @@ Be specific about the user need or technical debt being addressed.}
 - {What we're explicitly NOT doing}
 - {Future work that's related but deferred}
 
+## Capabilities
+
+> This section is the CONTRACT between proposal and specs phases.
+> The sdd-spec agent reads this to know exactly which spec files to create or update.
+> Research `openspec/specs/` before filling this in.
+
+### New Capabilities
+<!-- Capabilities being introduced. Each gets a full spec at `openspec/changes/{change-name}/specs/<name>/spec.md` during the spec phase and becomes `openspec/specs/<name>/spec.md` at archive.
+     Use kebab-case names (e.g., user-auth, data-export, api-rate-limiting).
+     Leave empty if no new capabilities. -->
+- `<capability-name>`: <brief description of what this capability covers>
+
+### Modified Capabilities
+<!-- Existing capabilities whose REQUIREMENTS are changing (not just implementation).
+     Only list here if spec-level behavior changes. Each needs a delta spec.
+     Use existing spec names from openspec/specs/. Leave empty if none. -->
+- `<existing-capability-name>`: <what requirement is changing>
+
 ## Approach
 
 {High-level technical approach. How will we solve this?
@@ -131,22 +145,10 @@ Reference the recommended approach from exploration if available.}
 
 **This step is MANDATORY — do NOT skip it.**
 
-If mode is `engram`:
-```
-mem_save(
-  title: "sdd/{change-name}/proposal",
-  topic_key: "sdd/{change-name}/proposal",
-  type: "architecture",
-  project: "{project}",
-  content: "{your full proposal markdown from Step 4}"
-)
-```
-
-If mode is `openspec` or `hybrid`: the file was already written in Step 4.
-
-If mode is `hybrid`: also call `mem_save` as above (write to BOTH backends).
-
-If you skip this step, the next phase (sdd-spec) will NOT be able to find your proposal and the pipeline BREAKS.
+Follow **Section C** from `skills/_shared/sdd-phase-common.md`.
+- artifact: `proposal`
+- topic_key: `sdd/{change-name}/proposal`
+- type: `architecture`
 
 ### Step 6: Return Summary
 
@@ -175,7 +177,12 @@ Ready for specs (sdd-spec) or design (sdd-design).
 - Keep the proposal CONCISE - it's a thinking tool, not a novel
 - Every proposal MUST have a rollback plan
 - Every proposal MUST have success criteria
+- Return unresolved product decisions to the orchestrator; do not interview the user, choose for them or infer consent. Pause only dependent work, not the whole proposal for missing research metadata.
 - Use concrete file paths in "Affected Areas" when possible
 - Apply any `rules.proposal` from `openspec/config.yaml`
-- **Size budget**: Proposal artifact MUST be under 400 words. Use bullet points and tables over prose. Headers organize, not explain.
-- Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, and `risks` (read `../_shared/sdd-phase-common.md` for the full envelope spec)
+- **ALWAYS fill in the Capabilities section** — this is the contract with sdd-spec. Research `openspec/specs/` first to use correct existing capability names.
+- New Capabilities → each gets a full spec at `openspec/changes/{change-name}/specs/<name>/spec.md` during the spec phase and becomes `openspec/specs/<name>/spec.md` at archive
+- Modified Capabilities → each will become a delta spec in the change folder
+- If nothing changes at the spec level (pure refactor, config change), explicitly write "None" under both sub-sections — don't leave them as template placeholders
+- **Sufficient detail**: Keep the proposal concise but complete enough to explain intent, scope, risks, rollback and success criteria. Use bullets or tables where they improve clarity. Do not truncate required detail to meet a word or line cap.
+- Return envelope per **Section D** from `skills/_shared/sdd-phase-common.md`.
