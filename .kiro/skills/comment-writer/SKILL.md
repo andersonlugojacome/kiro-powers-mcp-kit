@@ -1,7 +1,7 @@
 ---
 name: comment-writer
 description: "Write warm, direct collaboration comments. Trigger: PR feedback, issue replies, reviews, Slack messages, or GitHub comments."
-license: MIT
+license: Apache-2.0
 metadata:
   author: gentleman-programming
   version: "1.0"
@@ -9,72 +9,66 @@ metadata:
 
 ## When to Use
 
-Load this skill when writing any collaboration comment:
+Load this skill whenever you write a comment that another human will read.
 
-- PR review feedback
-- Issue replies and triage comments
-- Code review suggestions
-- GitHub discussion responses
-- Slack/Teams messages about code
+Use it for:
 
-## Critical Rules
+- GitHub PR or issue comments.
+- Review feedback and requested changes.
+- Maintainer replies.
+- Slack, Discord, or async project updates.
+
+## Voice Rules
 
 | Rule | Requirement |
 |------|-------------|
-| Lead with action | Start with the actionable point, no recap preamble |
-| Warm and direct | Thoughtful teammate tone, not corporate bot |
-| Tight format | 1-3 short paragraphs or tight bullet list |
-| Explain WHY | When requesting changes, explain the reason |
-| One focus | Comment on highest-value issue only, no pile-ons |
-| Match language | Follow target context language (Spanish thread → Spanish) |
-| No em dashes | Use commas, periods, or semicolons instead |
+| Be useful fast | Start with the actionable point. Do not recap the whole PR before feedback. |
+| Be warm and direct | Sound like a thoughtful teammate, not a corporate bot. |
+| Keep it short | Prefer 1 to 3 short paragraphs or a tight bullet list. |
+| Explain why | Give the technical reason when asking for a change. |
+| Avoid pile-ons | Comment on the highest-value issue, not every tiny preference. |
+| Match target context language | Write in the target context language by default: Spanish issue/thread -> Spanish comment, English issue/thread -> English comment, mixed context -> target message language. If the user explicitly requests a language or tone, follow that request. For Spanish comments, use neutral/professional Spanish by default unless the user or target context clearly calls for regional tone. |
+| No em dashes | Use commas, periods, or parentheses instead. |
 
 ## Comment Formula
 
-```
+```text
 <Direct observation or request>
-<Why it matters — only if non-obvious>
-<Concrete next action or suggestion>
+
+<Why it matters, only if needed>
+
+<Concrete next action>
 ```
 
 ## Examples
 
-### PR Review (requesting change)
+### Request change
 
-```
-This query rebuilds the full user list on every request.
-Consider adding pagination — the table has ~50k rows in prod
-and this will timeout under load.
+```markdown
+Good approach overall. I'd split this into a separate commit because it mixes validation logic with UI wiring.
 
-Something like `LIMIT :size OFFSET :page * :size` with defaults
-would keep response times under 200ms.
+That keeps the reviewer's focus narrower and makes rollback cleaner if the integration fails.
 ```
 
-### PR Review (approval with note)
+### Approve with a note
 
-```
-Clean implementation. The retry logic handles the edge cases well.
+```markdown
+Approved. The scope is clear and the change is well-contained.
 
-One small thing for a follow-up: the backoff multiplier is
-hardcoded at 2x. A config constant would make tuning easier
-later without touching this logic.
+For the next PR, add links to the previous and following PRs so the chain stays navigable.
 ```
 
-### Issue Triage
+### Ask for split
 
+```markdown
+This PR exceeds the 400-line budget, so we need to split it or justify `size:exception`.
+
+Suggested order: foundation + tests first, then integration, then docs. That gives each review a clear start and end.
 ```
-Reproduced on Node 20.11 with the steps described.
-The root cause looks like the stream isn't closing on timeout.
 
-I'll pick this up in the next sprint — marking as confirmed.
+## Commands
+
+```bash
+# Inspect a PR before writing review feedback
+gh pr view <PR_NUMBER> --json title,body,additions,deletions,changedFiles
 ```
-
-## Anti-Patterns
-
-| Anti-pattern | Problem | Better |
-|---|---|---|
-| "Great job! I have a few minor suggestions..." | Buries the point | Lead with the suggestion |
-| Commenting on 10 things at once | Overwhelms the author | Pick the highest-value item |
-| "Can you fix this?" without why | Author can't learn | Explain the reasoning |
-| Corporate tone ("Please be advised...") | Creates distance | Write like a teammate |
-| Restating what the PR already says | Wastes time | Add new information only |

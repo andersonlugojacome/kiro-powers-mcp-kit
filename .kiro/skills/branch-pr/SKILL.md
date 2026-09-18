@@ -1,7 +1,7 @@
 ---
 name: branch-pr
-description: "Create pull requests with issue-first checks. Trigger: creating, opening, or preparing PRs for review."
-license: MIT
+description: "Create Gentle AI pull requests with issue-first checks. Trigger: creating, opening, or preparing PRs for review."
+license: Apache-2.0
 metadata:
   author: gentleman-programming
   version: "2.0"
@@ -31,7 +31,7 @@ Use this skill when:
 1. Verify issue has `status:approved` label
 2. Create branch: type/description (see Branch Naming below)
 3. Implement changes with conventional commits
-4. Run shellcheck on modified scripts (if any)
+4. Run shellcheck on modified scripts
 5. Open PR using the template
 6. Add exactly one type:* label
 7. Wait for automated checks to pass
@@ -55,6 +55,7 @@ Branch names MUST match this regex:
 | Bug fix | `fix/<description>` | `fix/zsh-glob-error` |
 | Chore | `chore/<description>` | `chore/update-ci-actions` |
 | Docs | `docs/<description>` | `docs/installation-guide` |
+| Style | `style/<description>` | `style/format-scripts` |
 | Refactor | `refactor/<description>` | `refactor/extract-shared-logic` |
 | Performance | `perf/<description>` | `perf/reduce-startup-time` |
 | Test | `test/<description>` | `test/add-setup-coverage` |
@@ -66,7 +67,7 @@ Branch names MUST match this regex:
 
 ## PR Body Format
 
-Every PR body MUST contain:
+The PR template is at `.github/PULL_REQUEST_TEMPLATE.md`. Every PR body MUST contain:
 
 ### 1. Linked Issue (REQUIRED)
 
@@ -79,10 +80,10 @@ The linked issue MUST have the `status:approved` label.
 
 ### 2. PR Type (REQUIRED)
 
-Check exactly ONE and add the matching label:
+Check exactly ONE in the template and add the matching label:
 
-| Type | Label |
-|------|-------|
+| Checkbox | Label to add |
+|----------|-------------|
 | Bug fix | `type:bug` |
 | New feature | `type:feature` |
 | Documentation only | `type:docs` |
@@ -105,7 +106,7 @@ Check exactly ONE and add the matching label:
 ### 5. Test Plan
 
 ```markdown
-- [x] Scripts run without errors
+- [x] Scripts run without errors: `shellcheck scripts/*.sh`
 - [x] Manually tested the affected functionality
 - [x] Skills load correctly in target agent
 ```
@@ -115,22 +116,39 @@ Check exactly ONE and add the matching label:
 All boxes must be checked:
 - Linked an approved issue
 - Added exactly one `type:*` label
-- Ran shellcheck on modified scripts (if any)
+- Ran shellcheck on modified scripts
+- Skills tested in at least one agent
 - Docs updated if behavior changed
 - Conventional commit format
 - No `Co-Authored-By` trailers
 
 ---
 
+## Automated Checks (all must pass)
+
+| Check | Job name | What it verifies |
+|-------|----------|-----------------|
+| PR Validation | `Check Issue Reference` | Body contains `Closes/Fixes/Resolves #N` |
+| PR Validation | `Check Issue Has status:approved` | Linked issue has `status:approved` |
+| PR Validation | `Check PR Has type:* Label` | PR has exactly one `type:*` label |
+| CI | `Shellcheck` | Shell scripts pass `shellcheck` |
+
+---
+
 ## Conventional Commits
 
-Commit messages MUST match:
+Commit messages MUST match this regex:
 
 ```
 ^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z0-9\._-]+\))?!?: .+
 ```
 
 **Format:** `type(scope): description` or `type: description`
+
+- `type` — required, one of: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`
+- `(scope)` — optional, lowercase with `a-z0-9._-`
+- `!` — optional, indicates breaking change
+- `description` — required, starts after `: `
 
 Type-to-label mapping:
 
@@ -140,18 +158,28 @@ Type-to-label mapping:
 | `fix` | `type:bug` |
 | `docs` | `type:docs` |
 | `refactor` | `type:refactor` |
-| `chore`, `style`, `test`, `build`, `ci` | `type:chore` |
+| `chore` | `type:chore` |
+| `style` | `type:chore` |
 | `perf` | `type:feature` |
+| `test` | `type:chore` |
+| `build` | `type:chore` |
+| `ci` | `type:chore` |
 | `revert` | `type:bug` |
 | `feat!` / `fix!` | `type:breaking-change` |
 
 Examples:
 ```
-feat(skills): add chained-pr delivery workflow
-fix(steering): correct routing table in orchestrator
-docs(readme): update v1.9.0 changelog
+feat(scripts): add Codex support to setup.sh
+fix(skills): correct topic key format in sdd-apply
+docs(readme): update multi-model configuration guide
 refactor(skills): extract shared persistence logic
 chore(ci): add shellcheck to PR validation workflow
+perf(scripts): reduce setup.sh execution time
+style(skills): fix markdown formatting
+test(scripts): add setup.sh integration tests
+ci(workflows): add branch name validation
+revert: undo broken setup change
+feat!: redesign skill loading system
 ```
 
 ---
@@ -162,7 +190,7 @@ chore(ci): add shellcheck to PR validation workflow
 # Create branch
 git checkout -b feat/my-feature main
 
-# Run shellcheck before pushing (if scripts changed)
+# Run shellcheck before pushing
 shellcheck scripts/*.sh
 
 # Push and create PR

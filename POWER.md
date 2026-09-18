@@ -1,6 +1,10 @@
 ---
 name: "kiro-powers-mcp-kit"
 displayName: "Kiro Powers MCP Kit"
+version: "3.0.0"
+icon: "https://raw.githubusercontent.com/andersonlugojacome/kiro-powers-mcp-kit/main/assets/logo.png"
+description: "v3.0.0 — Framework de desarrollo organico (ODD) para Kiro: routing por complejidad real (direct/delegated/optional SDD), delivery por work-units, skills v3.x, RDD como switch de review independiente (file-based, 4R lens), memoria persistente (Engram GO), documentacion viva (Context7) y gestion de equipo (Jira)."
+keywords: ["mcp", "engram", "memory", "jira", "confluence", "atlassian", "sdd", "context7", "spec-driven", "persistent memory", "documentation", "loop-controller", "organic-routing", "delegation", "chained-pr", "work-units", "judgment-day", "cognitive-load", "skill-registry"]
 version: "2.0.0"
 icon: "https://raw.githubusercontent.com/andersonlugojacome/kiro-powers-mcp-kit/main/assets/logo.png"
 description: "v2.0.0 — Framework de desarrollo para Kiro con routing organico, RDD awareness (4R review lenses + gentle-ai CLI detection), delivery workflow, quality skills, Engram GO v1.15.3+, Context7 y Jira."
@@ -10,6 +14,7 @@ author: "Anderson Lugo"
 
 # Kiro Powers MCP Kit
 
+> **Version instalada: 3.0.0** — Escribi "estatus" para verificar estado MCP.
 > **Version instalada: 2.0.0** — Escribi "estatus" para verificar estado MCP.
 
 ## Overview
