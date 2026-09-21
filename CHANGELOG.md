@@ -7,6 +7,26 @@ y este proyecto adhiere a [Versionamiento Semántico](https://semver.org/lang/es
 
 ## [No publicado]
 
+## [3.0.1] - 2026-09-21
+
+Sincronizacion de los contratos `_shared` de los skills SDD con **gentle-ai v3.4.0**, manteniendo la portabilidad file-based (Opcion A). Cambio de mantenimiento sin nuevas features ni breaking changes: el delta v3.2.1 -> v3.4.0 es acotado (casi todo es infraestructura Go/CLI que no toca los skills distribuidos).
+
+### Cambiado
+- **`engram-convention.md`**: se adopta el protocolo `mem_review` lifecycle, Optional State Hint y research artifacts de v3.4.0; se conservan el Prompt Capture Protocol (`capture_prompt`/`mem_save_prompt`) y la tabla de 20+ tools de Engram GO propios del Power
+- **`persistence-contract.md`**: se adopta Mode Roles/Comparison, READ-MERGE-WRITE y sub-agent response ordering de v3.4.0; se conserva la tabla de migracion server-memory -> Engram GO
+- **`sdd-phase-common.md`**: Review Workload Guard (budget 400 lineas) + validacion de task-result auto-degradante (verbatim 3.4.0)
+- **`openspec-convention.md`**: Delta Spec Sections + filas `research.md` (verbatim 3.4.0)
+- **`review-ledger-contract.md`** (+ variante `-pi`): transporte OpenCode Task (verbatim 3.4.0)
+
+### Conservado
+- Las **4R review lenses** standalone y los contratos file-based `rdd-contract.md` + `loop-controller-contract.md`
+- El banner de fallback file-based en `sdd-orchestrator-sections.md` y `sdd-status-contract.md` (su cuerpo ya coincidia con 3.4.0, sin cambios)
+- Todos los SKILL.md quedan identicos salvo los 2 Power-especificos (`kiro-update-assistant`, `mcp-status-assistant`), que NO se sobrescriben
+
+### Fuera de alcance
+- Dependencia de la CLI nativa `gentle-ai`
+- `go-testing` / `gentle-ai-bench` (product-specific de gentle-ai)
+
 ## [3.0.0] - 2026-09-18
 
 Alineacion con gentle-ai v3.x: el framework pasa de SDD-first a **ODD-first** (Organic Driven Development), con SDD como rama de planificacion y RDD como switch de review independiente. Migracion **portable/file-based** (Opcion A): el Power sigue funcionando sin la CLI gentle-ai instalada.
