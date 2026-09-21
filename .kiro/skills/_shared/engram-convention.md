@@ -4,6 +4,8 @@
 > Backend: Engram GO (Go binary, SQLite + FTS5, 20+ MCP tools via stdio).
 > Minimum version: v1.15.3+
 
+NOTE: Critical engram calls (`mem_search`, `mem_save`, `mem_get_observation`) are inlined directly in each skill's SKILL.md. This document is supplementary reference — sub-agents do NOT need to read it to function.
+
 ## Prompt Capture Protocol (v1.15.3+)
 
 ### `capture_prompt` parameter
@@ -12,6 +14,8 @@
 
 - **`true` (default)**: Engram attempts to associate the user's prompt context with the observation. Used for human-driven decisions, discoveries, bug fixes, preferences.
 - **`false`**: Skip prompt capture. Used for **automated artifacts** that are not direct responses to a user prompt.
+
+Set `capture_prompt: false` when the Engram tool schema supports it; if an older schema rejects or does not expose the field, omit it rather than failing.
 
 ### When to use `capture_prompt: false`
 
@@ -54,6 +58,8 @@ title:     sdd/{change-name}/{artifact-type}
 topic_key: sdd/{change-name}/{artifact-type}
 type:      architecture
 project:   {detected or current project name}
+scope:     project
+capture_prompt: false
 ```
 
 ### Artifact Types (exact strings)
@@ -62,19 +68,23 @@ project:   {detected or current project name}
 |---|---|---|
 | `explore` | sdd-explore | Exploration analysis |
 | `proposal` | sdd-propose | Change proposal |
-| `spec` | sdd-spec | Delta specifications |
+| `spec` | sdd-spec | Delta specifications (all domains concatenated) |
 | `design` | sdd-design | Technical design |
 | `tasks` | sdd-tasks | Task breakdown |
-| `apply-progress` | sdd-apply | Implementation progress |
+| `apply-progress` | sdd-apply | Implementation progress (one per batch) |
 | `verify-report` | sdd-verify | Verification report |
 | `archive-report` | sdd-archive | Archive closure with lineage |
-| `state` | orchestrator | DAG state for recovery after compaction |
+| `state` | orchestrator | Optional recovery hint; actual artifacts remain authoritative |
 
 **Exception**: `sdd-init` uses `sdd-init/{project-name}` as both title and topic_key.
 
-### State Artifact
+### Research artifacts
 
-The orchestrator persists DAG state after each phase transition:
+Use `sdd/{change-name}/research` for optional source-backed notes when persistence is requested. Preserve historical research and preproposal observations. Their schema, revision or agreement with files is not proposal admission authority.
+
+### Optional State Hint
+
+An existing `sdd/{change-name}/state` observation is an optional recovery hint, not a required YAML snapshot or a second authority. Recover using native status and its resolved artifact locators; retrieve full observations with `mem_get_observation`. Preserve historical snapshots, but verify their claims against actual artifacts. A state-only observation does not establish active work; the actual `archive-report` remains the closure marker.
 
 ```
 mem_save(
@@ -86,18 +96,19 @@ mem_save(
 )
 ```
 
-Recovery: `mem_search("sdd/{change-name}/state")` -> `mem_get_observation(id)` -> parse -> restore.
-
 ## Recovery Protocol (2 steps)
 
-```
-Step 1: Search
-  mem_search(query: "sdd/{change-name}/{artifact-type}", project: "{project}")
-  -> Returns truncated preview (300 chars) with observation ID
+Memory lifecycle rule (when Engram exposes lifecycle metadata/tooling):
+- At session start or before architecture-sensitive work, call `mem_review` with action `list` for the current project when the tool is available.
+- If `mem_review` is unavailable, do not fail the task. Continue with normal `mem_context`/`mem_search`, and still apply lifecycle metadata from any returned observations when present.
+- `active` memories may be used normally.
+- `needs_review` memories are stale context, not trusted facts.
+- Surface `needs_review` context and verify it against current evidence before relying on it.
+- Do NOT call `mem_review` with action `mark_reviewed` automatically. Only call `mark_reviewed` after explicit user confirmation or through a dedicated memory maintenance command.
 
-Step 2: Get full content
-  mem_get_observation(id: {observation-id from step 1})
-  -> Returns complete untruncated content
+```
+Step 1: mem_search(query: "sdd/{change-name}/{artifact-type}", project: "{project}") → truncated preview + ID
+Step 2: mem_get_observation(id: {observation-id}) → complete content
 ```
 
 ### Retrieving Multiple Artifacts
@@ -106,21 +117,21 @@ Group searches first, then retrievals:
 
 ```
 STEP A — SEARCH (get IDs only):
-  1. mem_search(query: "sdd/{change-name}/proposal", project: "{project}") -> save ID
-  2. mem_search(query: "sdd/{change-name}/spec", project: "{project}") -> save ID
-  3. mem_search(query: "sdd/{change-name}/design", project: "{project}") -> save ID
+  mem_search(query: "sdd/{change-name}/proposal", ...) → save ID
+  mem_search(query: "sdd/{change-name}/spec", ...) → save ID
+  mem_search(query: "sdd/{change-name}/design", ...) → save ID
 
-STEP B — RETRIEVE FULL CONTENT:
-  4. mem_get_observation(id: {proposal_id}) -> full proposal
-  5. mem_get_observation(id: {spec_id}) -> full spec
-  6. mem_get_observation(id: {design_id}) -> full design
+STEP B — RETRIEVE FULL CONTENT (mandatory):
+  mem_get_observation(id: {proposal_id})
+  mem_get_observation(id: {spec_id})
+  mem_get_observation(id: {design_id})
 ```
 
 ### Loading Project Context
 
 ```
-mem_search(query: "sdd-init/{project}", project: "{project}") -> get ID
-mem_get_observation(id) -> full project context
+mem_search(query: "sdd-init/{project}", project: "{project}") → get ID
+mem_get_observation(id) → full project context
 ```
 
 ## Writing Artifacts
@@ -139,7 +150,19 @@ mem_save(
 ```
 
 `topic_key` enables upserts — saving again updates, not duplicates.
-`capture_prompt: false` because SDD artifacts are automated, not direct user responses.
+`capture_prompt: false` because SDD artifacts are automated, not direct user responses. Do not infer this from `type` because both SDD artifacts and human architecture decisions use `architecture`. If an older schema rejects or does not expose `capture_prompt`, omit it rather than failing.
+
+Concrete example — saving a proposal for `add-dark-mode`:
+```
+mem_save(
+  title: "sdd/add-dark-mode/proposal",
+  topic_key: "sdd/add-dark-mode/proposal",
+  type: "architecture",
+  project: "my-app",
+  capture_prompt: false,
+  content: "## Proposal\n\nAdd dark mode toggle..."
+)
+```
 
 ### Human Decisions (proactive saves)
 
@@ -162,6 +185,15 @@ mem_update(
   id: {observation-id},
   content: "{updated full content}"
 )
+```
+
+Use `mem_update` when you have the exact ID. Use `mem_save` with same `topic_key` for upserts.
+
+### Browsing All Artifacts for a Change
+
+```
+mem_search(query: "sdd/{change-name}/", project: "{project}")
+→ Returns all artifacts for that change
 ```
 
 ## Engram GO Tools Reference (20+ tools)
@@ -193,9 +225,20 @@ mem_update(
 | `mem_merge_projects` | Fix project name drift (merge name variants) |
 | `mem_doctor` | Health check for Engram DB |
 
+## Project Name Resolution (engram v1.11.0+)
+
+Engram auto-detects the project name from the git remote at MCP startup. The `--project` flag and `ENGRAM_PROJECT` env var can override detection. All project names are normalized to lowercase and trimmed.
+
+If the agent saves a memory under a project name that doesn't match existing observations, engram warns about potential name drift. Use `mem_merge_projects` (MCP tool) or `engram projects consolidate` (CLI) to merge variants.
+
+## Upsert Behavior
+
+Same `topic_key` + `project` + `scope` → UPDATE (overwrite), not INSERT. Previous content is lost — `revision_count` increments but old content is NOT saved. This is by design — engram is working memory, not an audit trail. For iteration history or team collaboration, use `openspec` or `hybrid` mode.
+
 ## Why This Convention Exists
 
-- **Deterministic titles** -> recovery works by exact match
-- **`topic_key`** -> enables upserts without duplicates
-- **`sdd/` prefix** -> namespaces SDD artifacts from other observations
-- **Two-step recovery** -> `mem_search` previews are truncated; `mem_get_observation` for full content
+- **Deterministic titles** → recovery works by exact match
+- **`topic_key`** → enables upserts without duplicates
+- **`sdd/` prefix** → namespaces SDD artifacts from other observations
+- **Two-step recovery** → `mem_search` previews are truncated; `mem_get_observation` for full content
+- **Lineage** → archive-report includes all observation IDs for complete traceability
